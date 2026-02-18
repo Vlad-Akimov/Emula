@@ -1,5 +1,6 @@
 package com.example.nfctagemulator.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -25,37 +26,54 @@ fun TagCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isEmulating)
                 MaterialTheme.colorScheme.primaryContainer
             else
                 MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isEmulating) 8.dp else 4.dp
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Имя метки и дата
+            // Верхняя строка с именем и статусом
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = tag.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isEmulating)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
-                )
+                ) {
+                    // Индикатор эмуляции
+                    if (isEmulating) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color.Green)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
+                    Text(
+                        text = tag.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (isEmulating)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 Text(
                     text = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
@@ -76,52 +94,56 @@ fun TagCard(
                 fontSize = 14.sp
             )
 
-            // Статус эмуляции
+            // Статус эмуляции подробно
             if (isEmulating) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "⚡ Эмулируется",
+                    text = "⚡ Сейчас эмулируется - телефон работает как эта метка",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Кнопки
+            // Кнопки действий
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Кнопка эмуляции
+                // Кнопка эмуляции (основная)
                 Button(
                     onClick = { onEmulateClick(tag) },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isEmulating)
                             MaterialTheme.colorScheme.error
                         else
                             MaterialTheme.colorScheme.primary
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(if (isEmulating) "Остановить" else "Эмулировать")
+                    Text(
+                        if (isEmulating) "⏹ Стоп"
+                        else "▶ Старт",
+                        fontSize = 14.sp
+                    )
                 }
 
                 // Кнопка переименования
                 OutlinedButton(
                     onClick = { onRenameClick(tag) },
-                    modifier = Modifier.width(50.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("✎", fontSize = 16.sp)
+                    Text("✎", fontSize = 18.sp)
                 }
 
                 // Кнопка удаления
                 OutlinedButton(
                     onClick = { onDeleteClick(tag) },
-                    modifier = Modifier.width(50.dp),
-                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
