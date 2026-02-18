@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NfcTagEmulator</string>
+    <string name="app_name">Emula</string>
     <string name="service_description">NFC Tag Emulation Service</string>
     <string name="aid_group_description">Emulated NFC Tags</string>
 </resources>
