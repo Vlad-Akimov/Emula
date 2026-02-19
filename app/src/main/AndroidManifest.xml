@@ -36,8 +36,6 @@
             <!-- Фильтр для обнаружения NFC меток -->
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
-                <action android:name="android.nfc.action.TECH_DISCOVERED" />
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -47,11 +45,11 @@
 
         </activity>
 
-        <!-- Сервис эмуляции NFC метки (HCE) с правильным приоритетом -->
+        <!-- Сервис эмуляции NFC метки (HCE) -->
         <service
             android:name=".nfc.emulator.TagHostApduService"
             android:exported="true"
-            android:permission="android.permission.BIND_NFC_SERVICE">
+            android:permission="android.permission.BIND_NFC_SERVICE"
             android:enabled="true">
 
             <intent-filter>

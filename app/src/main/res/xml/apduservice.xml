@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/service_description"
-    android:requireDeviceUnlock="false"
-    android:apduServiceBanner="@drawable/ic_launcher_foreground">
+    android:requireDeviceUnlock="false">
 
-    <!-- Используем категория "other" вместо payment для избежания конфликтов -->
+    <!-- Используем категорию "other" для избежания конфликтов -->
     <aid-group
         android:description="@string/aid_group_description"
         android:category="other">
 
-        <!-- Стандартный AID для NDEF тегов (Type 4 Tag) -->
+        <!-- Стандартный AID для NDEF тегов (Type 4 Tag) - основной -->
         <aid-filter android:name="D2760000850101"/>
 
-        <!-- Альтернативные AID для разных типов тегов -->
+        <!-- Альтернативные AID для NDEF -->
         <aid-filter android:name="D2760000850100"/>
         <aid-filter android:name="D2760000850102"/>
 
@@ -21,6 +20,17 @@
 
         <!-- AID для простой текстовой метки -->
         <aid-filter android:name="F123456789"/>
+
+        <!-- AID для URI/URL -->
+        <aid-filter android:name="F123456788"/>
+
+        <!-- Дополнительные AID для совместимости -->
+        <aid-filter android:name="D2760000850103"/>
+        <aid-filter android:name="D2760000850104"/>
+
+        <!-- AID для Smart Poster (SP) -->
+        <aid-filter android:name="D2760000850105"/>
+
     </aid-group>
 
 </host-apdu-service>

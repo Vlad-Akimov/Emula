@@ -2,7 +2,11 @@ package com.example.nfctagemulator.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import com.example.nfctagemulator.data.model.TagData
+import com.example.nfctagemulator.data.model.TagType
+import org.json.JSONArray
+import org.json.JSONObject
 
 class TagRepository(context: Context) {
 
@@ -15,7 +19,9 @@ class TagRepository(context: Context) {
         val existingIndex = tags.indexOfFirst { it.uid == tag.uid }
 
         if (existingIndex >= 0) {
-            tags[existingIndex] = tags[existingIndex].copy(name = tag.name)
+            // Обновляем существующую метку, сохраняя имя если оно не пустое
+            val newName = if (tag.name != "Без имени") tag.name else tags[existingIndex].name
+            tags[existingIndex] = tag.copy(name = newName)
         } else {
             tags.add(tag)
         }
@@ -25,7 +31,12 @@ class TagRepository(context: Context) {
 
     fun getAllTags(): List<TagData> {
         val tagsJson = sharedPrefs.getString(tagsKey, null) ?: return emptyList()
-        return parseTagsFromJson(tagsJson)
+        return try {
+            parseTagsFromJson(tagsJson)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     fun deleteTag(uid: String) {
@@ -43,73 +54,102 @@ class TagRepository(context: Context) {
         }
     }
 
+    fun getTagByUid(uid: String): TagData? {
+        return getAllTags().find { it.uid == uid }
+    }
+
     private fun saveTags(tags: List<TagData>) {
         val tagsJson = convertTagsToJson(tags)
         sharedPrefs.edit().putString(tagsKey, tagsJson).apply()
     }
 
-    // Простой парсинг без Gson
     private fun convertTagsToJson(tags: List<TagData>): String {
-        val sb = StringBuilder()
-        sb.append("[")
-        for (i in tags.indices) {
-            val tag = tags[i]
-            sb.append("{\"uid\":\"${tag.uid}\",\"name\":\"${tag.name}\",\"timestamp\":${tag.timestamp}}")
-            if (i < tags.size - 1) {
-                sb.append(",")
+        val jsonArray = JSONArray()
+
+        for (tag in tags) {
+            val jsonObject = JSONObject()
+            jsonObject.put("uid", tag.uid)
+            jsonObject.put("name", tag.name)
+            jsonObject.put("timestamp", tag.timestamp)
+            jsonObject.put("type", tag.type.name)
+
+            tag.rawData?.let {
+                jsonObject.put("rawData", Base64.encodeToString(it, Base64.DEFAULT))
             }
+
+            tag.ndefMessage?.let {
+                jsonObject.put("ndefMessage", Base64.encodeToString(it, Base64.DEFAULT))
+            }
+
+            if (tag.techList.isNotEmpty()) {
+                jsonObject.put("techList", JSONArray(tag.techList))
+            }
+
+            jsonArray.put(jsonObject)
         }
-        sb.append("]")
-        return sb.toString()
+
+        return jsonArray.toString()
     }
 
     private fun parseTagsFromJson(json: String): List<TagData> {
         val tags = mutableListOf<TagData>()
-        if (json == "[]") return tags
 
         try {
-            // Убираем квадратные скобки
-            val content = json.substring(1, json.length - 1)
-            if (content.isEmpty()) return tags
+            val jsonArray = JSONArray(json)
 
-            // Разбиваем по объектам
-            val objects = content.split("},{")
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
 
-            for (obj in objects) {
-                var cleanObj = obj
-                if (!cleanObj.startsWith("{")) cleanObj = "{$cleanObj"
-                if (!cleanObj.endsWith("}")) cleanObj = "$cleanObj}"
+                val uid = jsonObject.optString("uid", "")
+                if (uid.isEmpty()) continue
 
-                val uid = extractValue(cleanObj, "uid")
-                val name = extractValue(cleanObj, "name")
-                val timestamp = extractLongValue(cleanObj, "timestamp")
-
-                if (uid != null) {
-                    tags.add(TagData(
-                        uid = uid,
-                        name = name ?: "Без имени",
-                        timestamp = timestamp ?: System.currentTimeMillis()
-                    ))
+                val name = jsonObject.optString("name", "Без имени")
+                val timestamp = jsonObject.optLong("timestamp", System.currentTimeMillis())
+                val typeName = jsonObject.optString("type", TagType.UNKNOWN.name)
+                val type = try {
+                    TagType.valueOf(typeName)
+                } catch (e: Exception) {
+                    TagType.UNKNOWN
                 }
+
+                var rawData: ByteArray? = null
+                if (jsonObject.has("rawData")) {
+                    val rawDataStr = jsonObject.optString("rawData")
+                    if (rawDataStr.isNotEmpty()) {
+                        rawData = Base64.decode(rawDataStr, Base64.DEFAULT)
+                    }
+                }
+
+                var ndefMessage: ByteArray? = null
+                if (jsonObject.has("ndefMessage")) {
+                    val ndefStr = jsonObject.optString("ndefMessage")
+                    if (ndefStr.isNotEmpty()) {
+                        ndefMessage = Base64.decode(ndefStr, Base64.DEFAULT)
+                    }
+                }
+
+                val techList = mutableListOf<String>()
+                if (jsonObject.has("techList")) {
+                    val techArray = jsonObject.getJSONArray("techList")
+                    for (j in 0 until techArray.length()) {
+                        techList.add(techArray.getString(j))
+                    }
+                }
+
+                tags.add(TagData(
+                    uid = uid,
+                    name = name,
+                    timestamp = timestamp,
+                    type = type,
+                    rawData = rawData,
+                    ndefMessage = ndefMessage,
+                    techList = techList
+                ))
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         return tags
-    }
-
-    private fun extractValue(json: String, key: String): String? {
-        val pattern = "\"$key\":\"([^\"]*)\""
-        val regex = Regex(pattern)
-        val matchResult = regex.find(json)
-        return matchResult?.groupValues?.get(1)
-    }
-
-    private fun extractLongValue(json: String, key: String): Long? {
-        val pattern = "\"$key\":(\\d+)"
-        val regex = Regex(pattern)
-        val matchResult = regex.find(json)
-        return matchResult?.groupValues?.get(1)?.toLongOrNull()
     }
 }

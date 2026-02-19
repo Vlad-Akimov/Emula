@@ -5,10 +5,15 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.nfc.NdefMessage
+import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.nfc.tech.Ndef
 import android.util.Log
 import com.example.nfctagemulator.data.model.TagData
+import com.example.nfctagemulator.data.model.TagType
+import java.io.ByteArrayOutputStream
 
 class NfcReader(private val context: Context) {
 
@@ -25,7 +30,9 @@ class NfcReader(private val context: Context) {
     }
 
     private val filters = arrayOf(
-        IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
+        IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED),
+        IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED),
+        IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
     )
 
     fun enable(activity: Activity) {
@@ -69,8 +76,87 @@ class NfcReader(private val context: Context) {
         } ?: return null
 
         val uid = tag.id.joinToString("") { "%02X".format(it) }
-        Log.d("NfcReader", "Прочитана метка: $uid")
 
-        return TagData(uid = uid)
+        // Получаем список технологий
+        val techList = tag.techList?.toList() ?: emptyList()
+
+        // Пытаемся прочитать NDEF данные
+        var ndefMessage: ByteArray? = null
+        var tagType = TagType.UNKNOWN
+
+        try {
+            val ndef = Ndef.get(tag)
+            if (ndef != null) {
+                ndef.connect()
+                val message = ndef.ndefMessage
+                if (message != null) {
+                    ndefMessage = messageToByteArray(message)
+
+                    // Определяем тип по первой записи
+                    if (message.records.isNotEmpty()) {
+                        tagType = detectNdefType(message.records[0])
+                    }
+                }
+                ndef.close()
+            }
+        } catch (e: Exception) {
+            Log.e("NfcReader", "Ошибка чтения NDEF", e)
+        }
+
+        Log.d("NfcReader", "Прочитана метка: $uid, тип: $tagType")
+
+        return TagData(
+            uid = uid,
+            type = tagType,
+            rawData = tag.id,
+            ndefMessage = ndefMessage,
+            techList = techList
+        )
+    }
+
+    private fun messageToByteArray(message: NdefMessage): ByteArray {
+        val baos = ByteArrayOutputStream()
+        val records = message.records
+
+        // Формат: [NLEN][NDEF Records]
+        // Сначала вычисляем общий размер
+        var totalSize = 0
+        for (record in records) {
+            totalSize += record.toByteArray().size
+        }
+
+        // Записываем длину (2 байта, big-endian)
+        baos.write((totalSize shr 8) and 0xFF)
+        baos.write(totalSize and 0xFF)
+
+        // Записываем записи
+        for (record in records) {
+            baos.write(record.toByteArray())
+        }
+
+        return baos.toByteArray()
+    }
+
+    private fun detectNdefType(record: NdefRecord): TagType {
+        return when (record.tnf) {
+            NdefRecord.TNF_WELL_KNOWN -> {
+                val typeStr = String(record.type, Charsets.US_ASCII)
+                when (typeStr) {
+                    "T" -> TagType.NDEF_TEXT
+                    "U" -> TagType.NDEF_URI
+                    "Sp" -> TagType.NDEF_SMART_POSTER
+                    else -> TagType.UNKNOWN
+                }
+            }
+            NdefRecord.TNF_MIME_MEDIA -> {
+                val typeStr = String(record.type, Charsets.US_ASCII)
+                if (typeStr.contains("vcard") || typeStr.contains("vcf")) {
+                    TagType.NDEF_VCARD
+                } else {
+                    TagType.UNKNOWN
+                }
+            }
+            else -> TagType.UNKNOWN
+        }
     }
 }
