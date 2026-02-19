@@ -291,7 +291,7 @@ fun EmulatorMainScreen(
                         )
                     ) {
                         Text(
-                            if (isEmulating) "⛔ ЭМУЛЯЦИЯ" else "СКАНИРОВАТЬ",
+                            if (isEmulating) "ЭМУЛЮ" else "СКАНИТЬ",
                             fontSize = 12.sp
                         )
                     }
@@ -357,7 +357,7 @@ fun EmulatorMainScreen(
                                     text = if (isEmulating)
                                         "⚡ ЭМУЛЯЦИЯ АКТИВНА"
                                     else
-                                        "НЕТ СОХРАНЕННЫХ МЕТОК",
+                                        "НЕТ СОХРАНЕННЫХ",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = if (isEmulating) Color.Green else Color.White
                                 )
@@ -428,7 +428,7 @@ fun EmulatorMainScreen(
                                     onEmulationStateChanged(false)
                                     Toast.makeText(
                                         context,
-                                        "⏹ Эмуляция остановлена",
+                                        "Эмуляция остановлена",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
