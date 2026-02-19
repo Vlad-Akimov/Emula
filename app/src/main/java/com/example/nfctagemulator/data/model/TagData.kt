@@ -6,7 +6,7 @@ import java.util.Arrays
 
 data class TagData(
     val uid: String,
-    val name: String = "Без имени",
+    val name: String = "No name",
     val timestamp: Long = System.currentTimeMillis(),
     val type: TagType = TagType.UNKNOWN,
     val rawData: ByteArray? = null,
@@ -16,7 +16,7 @@ data class TagData(
 
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
-        parcel.readString() ?: "Без имени",
+        parcel.readString() ?: "No name",
         parcel.readLong(),
         TagType.valueOf(parcel.readString() ?: TagType.UNKNOWN.name),
         parcel.readInt().takeIf { it >= 0 }?.let { parcel.createByteArray() },

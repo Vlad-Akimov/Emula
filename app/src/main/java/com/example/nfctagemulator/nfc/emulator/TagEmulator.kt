@@ -18,10 +18,10 @@ class TagEmulator(private val context: Context) {
         val editor = prefs.edit()
         if (tag == null) {
             editor.remove(EMULATING_TAG_UID_KEY)
-            Log.d("TagEmulator", "Эмуляция остановлена")
+            Log.d("TagEmulator", "Emulation stopped")
         } else {
             editor.putString(EMULATING_TAG_UID_KEY, tag.uid)
-            Log.d("TagEmulator", "Эмуляция запущена: ${tag.uid}")
+            Log.d("TagEmulator", "Emulation is running: ${tag.uid}")
         }
         editor.apply()
     }

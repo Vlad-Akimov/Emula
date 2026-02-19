@@ -37,21 +37,21 @@ class NfcReader(private val context: Context) {
 
     fun enable(activity: Activity) {
         if (adapter == null) {
-            Log.e("NfcReader", "NFC не поддерживается")
+            Log.e("NfcReader", "NFC is not supported")
             return
         }
 
         if (!adapter.isEnabled) {
-            Log.e("NfcReader", "NFC выключен")
+            Log.e("NfcReader", "NFC is disabled")
             return
         }
 
         try {
             adapter.enableForegroundDispatch(activity, pendingIntent, filters, null)
             isEnabled = true
-            Log.d("NfcReader", "Режим чтения ВКЛЮЧЕН")
+            Log.d("NfcReader", "Reading mode IS ENABLED")
         } catch (e: Exception) {
-            Log.e("NfcReader", "Ошибка включения", e)
+            Log.e("NfcReader", "Activation error", e)
         }
     }
 
@@ -60,9 +60,9 @@ class NfcReader(private val context: Context) {
             try {
                 adapter?.disableForegroundDispatch(activity)
                 isEnabled = false
-                Log.d("NfcReader", "Режим чтения ВЫКЛЮЧЕН")
+                Log.d("NfcReader", "Reading mode is DISABLED")
             } catch (e: Exception) {
-                Log.e("NfcReader", "Ошибка выключения", e)
+                Log.e("NfcReader", "Shutdown error", e)
             }
         }
     }
@@ -100,10 +100,10 @@ class NfcReader(private val context: Context) {
                 ndef.close()
             }
         } catch (e: Exception) {
-            Log.e("NfcReader", "Ошибка чтения NDEF", e)
+            Log.e("NfcReader", "NDEF reading error", e)
         }
 
-        Log.d("NfcReader", "Прочитана метка: $uid, тип: $tagType")
+        Log.d("NfcReader", "The label has been read: $uid, type: $tagType")
 
         return TagData(
             uid = uid,

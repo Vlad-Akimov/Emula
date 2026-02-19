@@ -1,5 +1,6 @@
 package com.example.nfctagemulator.ui.components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,14 +8,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.*
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nfctagemulator.data.model.TagData
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.nfctagemulator.ui.theme.*
 
 @Composable
 fun TagCard(
@@ -24,133 +25,154 @@ fun TagCard(
     onRenameClick: (TagData) -> Unit,
     onDeleteClick: (TagData) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isEmulating)
-                MaterialTheme.colorScheme.primaryContainer
-            else
-                MaterialTheme.colorScheme.surface
+    val infiniteTransition = rememberInfiniteTransition(label = "tag_card")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isEmulating) 8.dp else 4.dp
+        label = "glow"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = if (isEmulating) 12.dp else 4.dp,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .clip(RoundedCornerShape(24.dp)),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isEmulating) SurfaceGlow else SurfaceDark
         )
     ) {
-        Column(
+        // Добавляем градиентную границу вручную
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = if (isEmulating)
+                            listOf(NeonCyan, NeonPurple, NeonCyan)
+                        else
+                            listOf(NeonCyan.copy(alpha = 0.3f), NeonPurple.copy(alpha = 0.3f))
+                    ),
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .padding(1.dp) // Толщина границы
+                .background(
+                    color = if (isEmulating) SurfaceGlow else SurfaceDark,
+                    shape = RoundedCornerShape(23.dp)
+                )
         ) {
-            // Верхняя строка с именем и статусом
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Tag info
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    // Индикатор эмуляции
-                    if (isEmulating) {
-                        Box(
-                            modifier = Modifier
-                                .size(12.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color.Green)
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    // Text info
+                    Column {
+                        Text(
+                            text = tag.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = if (isEmulating) NeonCyan else Color.White,
+                            fontSize = 16.sp
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = formatUid(tag.uid),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp
+                        )
+                        // Убираем technology, так как его нет в модели
+                    }
+                }
+
+                // Actions
+                Row {
+                    // Rename button
+                    Button(
+                        onClick = { onRenameClick(tag) },
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(36.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonCyan.copy(alpha = 0.1f),
+                            contentColor = NeonCyan
+                        ),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("✏️", fontSize = 14.sp)
                     }
 
-                    Text(
-                        text = tag.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = if (isEmulating)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                Text(
-                    text = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
-                        .format(Date(tag.timestamp)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+                    // Delete button
+                    Button(
+                        onClick = { onDeleteClick(tag) },
+                        modifier = Modifier
+                            .height(36.dp)
+                            .width(36.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red.copy(alpha = 0.1f),
+                            contentColor = Color.Red
+                        ),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("🗑️", fontSize = 14.sp)
+                    }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-            // UID
-            Text(
-                text = tag.uid ?: "UID неизвестен",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                fontSize = 14.sp
-            )
-
-            // Статус эмуляции подробно
-            if (isEmulating) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "⚡ Сейчас эмулируется - телефон работает как эта метка",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Кнопки действий
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Кнопка эмуляции (основная)
-                Button(
-                    onClick = { onEmulateClick(tag) },
-                    modifier = Modifier.weight(2f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isEmulating)
-                            MaterialTheme.colorScheme.error
-                        else
-                            MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        if (isEmulating) "⏹ Стоп"
-                        else "▶ Старт",
-                        fontSize = 14.sp
-                    )
-                }
-
-                // Кнопка переименования
-                OutlinedButton(
-                    onClick = { onRenameClick(tag) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("✎", fontSize = 18.sp)
-                }
-
-                // Кнопка удаления
-                OutlinedButton(
-                    onClick = { onDeleteClick(tag) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("×", fontSize = 20.sp)
+                    // Emulate button
+                    Button(
+                        onClick = { onEmulateClick(tag) },
+                        modifier = Modifier
+                            .height(36.dp)
+                            .widthIn(min = 80.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isEmulating)
+                                NeonGreen.copy(alpha = 0.2f)
+                            else
+                                NeonCyan.copy(alpha = 0.2f),
+                            contentColor = if (isEmulating) NeonGreen else NeonCyan
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text(
+                            text = if (isEmulating) "⏹️ STOP" else "▶️ EMULATE",
+                            fontSize = 10.sp,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+private fun formatUid(uid: String?): String {
+    return uid?.let {
+        if (it.length > 8) {
+            it.chunked(2).joinToString(":").uppercase()
+        } else {
+            it.uppercase()
+        }
+    } ?: "Unknown"
 }

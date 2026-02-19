@@ -20,7 +20,7 @@ class TagRepository(context: Context) {
 
         if (existingIndex >= 0) {
             // Обновляем существующую метку, сохраняя имя если оно не пустое
-            val newName = if (tag.name != "Без имени") tag.name else tags[existingIndex].name
+            val newName = if (tag.name != "No name") tag.name else tags[existingIndex].name
             tags[existingIndex] = tag.copy(name = newName)
         } else {
             tags.add(tag)
