@@ -106,11 +106,24 @@ class MainActivity : ComponentActivity() {
 
         val tagData = reader.readTag(intent)
         tagData?.let {
-            repository.saveTag(it)
-            if (showScanScreen.value) {
-                scannedTag.value = it
+            // Проверяем, существует ли уже метка с таким UID
+            val existingTag = repository.getTagByUid(it.uid)
+
+            if (existingTag != null) {
+                // Метка уже существует
+                Toast.makeText(
+                    this,
+                    "⚠️ The label has already been saved as \"${existingTag.name}\"",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
-                Toast.makeText(this, "✅ ${it.name}", Toast.LENGTH_SHORT).show()
+                // Сохраняем новую метку
+                repository.saveTag(it)
+                if (showScanScreen.value) {
+                    scannedTag.value = it
+                } else {
+                    Toast.makeText(this, "✅ ${it.name}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
