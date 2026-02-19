@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/service_description"
-    android:requireDeviceUnlock="false">
+    android:requireDeviceUnlock="false"
+    android:apduServiceBanner="@drawable/ic_launcher_foreground">
 
+    <!-- Используем категория "other" вместо payment для избежания конфликтов -->
     <aid-group
         android:description="@string/aid_group_description"
         android:category="other">
 
-        <!-- AID для эмуляции NFC метки (NDEF) -->
+        <!-- Стандартный AID для NDEF тегов (Type 4 Tag) -->
         <aid-filter android:name="D2760000850101"/>
 
-        <!-- AID для эмуляции Mifare Classic (опционально) -->
-        <aid-filter android:name="F0010203040506"/>
+        <!-- Альтернативные AID для разных типов тегов -->
+        <aid-filter android:name="D2760000850100"/>
+        <aid-filter android:name="D2760000850102"/>
 
+        <!-- AID для MIFARE Classic эмуляции -->
+        <aid-filter android:name="F222222222"/>
+
+        <!-- AID для простой текстовой метки -->
+        <aid-filter android:name="F123456789"/>
     </aid-group>
 
 </host-apdu-service>

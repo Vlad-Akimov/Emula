@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- NFC разрешение -->
-    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Требуем наличие NFC -->
     <uses-feature
         android:name="android.hardware.nfc"
-        android:required="true"/>
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -29,31 +29,38 @@
             android:theme="@style/Theme.NfcTagEmulator">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <!-- Фильтр для обнаружения NFC меток -->
             <intent-filter>
-                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
 
         </activity>
 
-        <!-- Сервис эмуляции NFC метки (HCE) -->
+        <!-- Сервис эмуляции NFC метки (HCE) с правильным приоритетом -->
         <service
             android:name=".nfc.emulator.TagHostApduService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
+            android:enabled="true">
 
             <intent-filter>
-                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE"/>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.nfc.cardemulation.host_apdu_service"
-                android:resource="@xml/apduservice"/>
+                android:resource="@xml/apduservice" />
 
         </service>
 

@@ -2,6 +2,7 @@ package com.example.nfctagemulator.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,16 +38,24 @@ class MainActivity : ComponentActivity() {
     private lateinit var repository: TagRepository
     private lateinit var emulator: TagEmulator
     private var showScanScreen = mutableStateOf(false)
-
-    // Добавляем состояние для передачи данных сканирования
     private var scannedTag = mutableStateOf<TagData?>(null)
+
+    // Флаг для отслеживания режима эмуляции
+    private var isEmulating = mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Log.d("MainActivity", "onCreate")
+
         reader = NfcReader(this)
         repository = TagRepository(this)
         emulator = TagEmulator(this)
+
+        // Проверяем начальное состояние эмуляции
+        isEmulating.value = emulator.isEmulating()
+
+        Log.d("MainActivity", "Начальное состояние эмуляции: ${isEmulating.value}")
 
         setContent {
             NfcTagEmulatorTheme {
@@ -56,14 +65,21 @@ class MainActivity : ComponentActivity() {
                         scannedTag = scannedTag.value,
                         onBackClick = {
                             showScanScreen.value = false
-                            scannedTag.value = null // Сбрасываем после закрытия
+                            scannedTag.value = null
                         }
                     )
                 } else {
                     EmulatorMainScreen(
                         repository = repository,
                         emulator = emulator,
-                        onScanClick = { showScanScreen.value = true }
+                        isEmulating = isEmulating.value,
+                        onEmulationStateChanged = { newState ->
+                            isEmulating.value = newState
+                            updateNfcState()
+                        },
+                        onScanClick = {
+                            showScanScreen.value = true
+                        }
                     )
                 }
             }
@@ -72,27 +88,50 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        reader.enable(this)
+        Log.d("MainActivity", "onResume, isEmulating = ${isEmulating.value}")
+
+        // Включаем чтение ТОЛЬКО если не эмулируем
+        if (!isEmulating.value) {
+            reader.enable(this)
+            Log.d("MainActivity", "Режим чтения включен")
+        } else {
+            Log.d("MainActivity", "Режим эмуляции - чтение не включаем")
+        }
     }
 
     override fun onPause() {
         super.onPause()
+        Log.d("MainActivity", "onPause")
+
+        // Всегда отключаем чтение при паузе
         reader.disable(this)
+        Log.d("MainActivity", "Режим чтения отключен")
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        val tagData: TagData? = reader.readTag(intent)
+        Log.d("MainActivity", "onNewIntent, action = ${intent.action}")
+
+        // ВАЖНО: Игнорируем NFC интенты во время эмуляции
+        if (isEmulating.value) {
+            Log.d("MainActivity", "Режим эмуляции - игнорируем сканирование")
+            Toast.makeText(
+                this,
+                "Сейчас активен режим эмуляции. Остановите эмуляцию для сканирования.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val tagData = reader.readTag(intent)
 
         tagData?.let {
-            // Форматируем UID для отображения
-            val formattedUid = formatUid(it.uid)
+            Log.d("MainActivity", "Прочитана метка: ${it.uid}")
 
             // Сохраняем метку
             repository.saveTag(it)
 
-            // Если мы на экране сканирования, показываем уведомление
             if (showScanScreen.value) {
                 scannedTag.value = it
                 Toast.makeText(
@@ -101,7 +140,6 @@ class MainActivity : ComponentActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                // Если мы на главном экране, просто уведомляем
                 Toast.makeText(
                     this,
                     "Новая метка сохранена: ${it.name}",
@@ -111,14 +149,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun formatUid(uid: String?): String {
-        return uid?.let {
-            if (it.length > 8) {
-                it.chunked(2).joinToString(":").uppercase()
-            } else {
-                it.uppercase()
-            }
-        } ?: "Неизвестно"
+    private fun updateNfcState() {
+        Log.d("MainActivity", "updateNfcState, isEmulating = ${isEmulating.value}")
+
+        if (isEmulating.value) {
+            // В режиме эмуляции - ПОЛНОСТЬЮ отключаем чтение
+            reader.disable(this)
+            Log.d("MainActivity", "Режим эмуляции: чтение отключено")
+
+            Toast.makeText(
+                this,
+                "⚡ Режим эмуляции активен. Теперь телефон работает как метка.",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            // В режиме ожидания - включаем чтение
+            reader.enable(this)
+            Log.d("MainActivity", "Режим чтения: включено")
+
+            Toast.makeText(
+                this,
+                "📡 Режим чтения активен. Поднесите NFC метку.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }
 
@@ -127,6 +181,8 @@ class MainActivity : ComponentActivity() {
 fun EmulatorMainScreen(
     repository: TagRepository,
     emulator: TagEmulator,
+    isEmulating: Boolean,
+    onEmulationStateChanged: (Boolean) -> Unit,
     onScanClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -148,7 +204,7 @@ fun EmulatorMainScreen(
     val infiniteTransition = rememberInfiniteTransition(label = "emulation_animation")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
-        targetValue = 1.05f,
+        targetValue = 1.1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -173,39 +229,72 @@ fun EmulatorMainScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Верхняя панель с заголовком и кнопкой сканирования
-            Row(
+            // Верхняя панель
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                )
             ) {
-                Column {
-                    Text(
-                        text = "Эмулятор NFC",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    if (emulatingUid != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
                         Text(
-                            text = "⚡ Активная эмуляция",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            text = "Эмулятор NFC",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        // Статус
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        if (isEmulating) Color.Green else Color.Yellow
+                                    )
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (isEmulating)
+                                    "⚡ ЭМУЛЯЦИЯ МЕТКИ"
+                                else
+                                    "📡 РЕЖИМ ЧТЕНИЯ",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (isEmulating) Color.Green else Color.Yellow
+                            )
+                        }
+                    }
+
+                    // Кнопка сканирования (отключаем во время эмуляции)
+                    FilledTonalButton(
+                        onClick = onScanClick,
+                        enabled = !isEmulating,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = if (isEmulating)
+                                MaterialTheme.colorScheme.surfaceVariant
+                            else
+                                MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Text(
+                            if (isEmulating) "⛔ ЭМУЛЯЦИЯ" else "СКАНИРОВАТЬ",
+                            fontSize = 12.sp
                         )
                     }
-                }
-
-                // Кнопка сканирования
-                FilledTonalButton(
-                    onClick = onScanClick,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Text("Сканировать")
                 }
             }
 
@@ -218,56 +307,106 @@ fun EmulatorMainScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Анимированный индикатор
+                        // Индикатор
                         Box(
                             modifier = Modifier
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .scale(pulseScale)
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(30.dp))
+                                .scale(if (isEmulating) pulseScale else 1f)
                                 .background(
                                     brush = Brush.radialGradient(
                                         colors = listOf(
-                                            MaterialTheme.colorScheme.primary,
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                                            if (isEmulating)
+                                                Color.Green
+                                            else
+                                                MaterialTheme.colorScheme.primary,
+                                            if (isEmulating)
+                                                Color.Green.copy(alpha = 0.3f)
+                                            else
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                                         )
                                     )
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "NFC",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = MaterialTheme.colorScheme.onPrimary
+                                text = if (isEmulating) "⚡" else "NFC",
+                                style = MaterialTheme.typography.displaySmall,
+                                color = Color.White
                             )
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
 
-                        Text(
-                            text = "Нет сохраненных меток",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "Нажмите 'Сканировать' чтобы добавить первую метку",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Button(
-                            onClick = onScanClick,
+                        Card(
                             modifier = Modifier
-                                .fillMaxWidth(0.7f)
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp)
+                                .fillMaxWidth(0.9f)
+                                .padding(horizontal = 16.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                            )
                         ) {
-                            Text("Сканировать метку")
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = if (isEmulating)
+                                        "⚡ ЭМУЛЯЦИЯ АКТИВНА"
+                                    else
+                                        "НЕТ СОХРАНЕННЫХ МЕТОК",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = if (isEmulating) Color.Green else Color.White
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = if (isEmulating)
+                                        "Телефон работает как NFC метка.\nПоднесите другой телефон для считывания."
+                                    else
+                                        "Нажмите СКАНИРОВАТЬ чтобы добавить метку",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+
+                        if (!isEmulating) {
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Button(
+                                onClick = onScanClick,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Text("СКАНИРОВАТЬ МЕТКУ")
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Button(
+                                onClick = {
+                                    emulator.setEmulatingTag(null)
+                                    emulatingUid = null
+                                    onEmulationStateChanged(false)
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red
+                                )
+                            ) {
+                                Text("ОСТАНОВИТЬ ЭМУЛЯЦИЮ")
+                            }
                         }
                     }
                 }
@@ -283,13 +422,25 @@ fun EmulatorMainScreen(
                             isEmulating = tag.uid == emulatingUid,
                             onEmulateClick = { selectedTag ->
                                 if (selectedTag.uid == emulatingUid) {
+                                    // Останавливаем эмуляцию
                                     emulator.setEmulatingTag(null)
                                     emulatingUid = null
-                                    Toast.makeText(context, "Эмуляция остановлена", Toast.LENGTH_SHORT).show()
+                                    onEmulationStateChanged(false)
+                                    Toast.makeText(
+                                        context,
+                                        "⏹ Эмуляция остановлена",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 } else {
+                                    // Запускаем эмуляцию
                                     emulator.setEmulatingTag(selectedTag)
                                     emulatingUid = selectedTag.uid
-                                    Toast.makeText(context, "Эмуляция: ${selectedTag.name}", Toast.LENGTH_SHORT).show()
+                                    onEmulationStateChanged(true)
+                                    Toast.makeText(
+                                        context,
+                                        "⚡ Эмуляция: ${selectedTag.name}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             onRenameClick = { tagToRename ->
@@ -328,6 +479,16 @@ fun EmulatorMainScreen(
                             selectedTagForRename?.uid?.let { uid ->
                                 repository.updateTagName(uid, newName)
                                 tags = repository.getAllTags()
+
+                                // Если это эмулируемая метка, обновляем
+                                if (uid == emulatingUid) {
+                                    val updatedTag = tags.find { it.uid == uid }
+                                    updatedTag?.let {
+                                        emulator.setEmulatingTag(it)
+                                    }
+                                }
+
+                                Toast.makeText(context, "Имя обновлено", Toast.LENGTH_SHORT).show()
                             }
                             showRenameDialog = false
                         }
@@ -360,10 +521,12 @@ fun EmulatorMainScreen(
                             if (uid == emulatingUid) {
                                 emulator.setEmulatingTag(null)
                                 emulatingUid = null
+                                onEmulationStateChanged(false)
                             }
+
+                            showDeleteDialog = false
+                            Toast.makeText(context, "Метка удалена", Toast.LENGTH_SHORT).show()
                         }
-                        showDeleteDialog = false
-                        Toast.makeText(context, "Метка удалена", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
