@@ -4,7 +4,6 @@ import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
 import android.util.Log
 import com.example.nfctagemulator.data.repository.TagRepository
-import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 class TagHostApduService : HostApduService() {
@@ -15,44 +14,48 @@ class TagHostApduService : HostApduService() {
     companion object {
         private const val TAG = "TagHostApduService"
 
-        // Статусы ответов ISO 7816
+        // ISO 7816 status words
         private val SW_SUCCESS = byteArrayOf(0x90.toByte(), 0x00)
         private val SW_FILE_NOT_FOUND = byteArrayOf(0x6A, 0x82.toByte())
         private val SW_COMMAND_NOT_ALLOWED = byteArrayOf(0x69, 0x86.toByte())
         private val SW_WRONG_LENGTH = byteArrayOf(0x67, 0x00)
         private val SW_EOF = byteArrayOf(0x62, 0x82.toByte())
-        private val SW_SELECTED = byteArrayOf(0x90.toByte(), 0x00)
 
-        // Capability Container (CC) файл для Type 4 Tag
+        // Standard NDEF AID for Type 4 Tag (NFC Forum)
+        private val NDEF_AID = byteArrayOf(
+            0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x01
+        )
+
+        // File IDs for Type 4 Tag
+        private const val FILE_ID_CC = 0xE103  // Capability Container
+        private const val FILE_ID_NDEF = 0xE104 // NDEF File
+
+        // Capability Container for Type 4 Tag (validated format)
         private val CC_FILE = byteArrayOf(
-            0x00, 0x0F,                   // CCLEN = 15
-            0x20,                          // Mapping Version 2.0
-            0x00, 0x3F,                    // MLe = 63
-            0x00, 0x3F,                    // MLc = 63
-            0x04,                          // NDEF
-            0x06,                          // NDEF File Control TLV
-            (0xE1).toByte(), 0x04,           // File ID = 0xE104
-            0x08, 0x00,                    // Max NDEF Size = 2048 байт
-            0x00,                          // Read access
-            0x00                            // Write access
+            0x00, 0x0F,                    // CCLEN = 15 bytes
+            0x20,                           // Mapping Version 2.0
+            0x00.toByte(), 0x40.toByte(),   // Maximum R-APDU data size = 64
+            0x00.toByte(), 0x40.toByte(),   // Maximum C-APDU data size = 64
+            0x04,                           // NDEF File Control TLV present
+            0x06,                           // TLV length = 6
+            (FILE_ID_NDEF shr 8).toByte(),   // NDEF File ID (high byte)
+            (FILE_ID_NDEF and 0xFF).toByte(), // NDEF File ID (low byte)
+            0x08, 0x00,                     // Maximum NDEF size = 2048 bytes
+            0x00,                           // Read access always
+            0x00                            // Write access always
         )
 
-        // NDEF File Control TLV
-        private val NDEF_FILE_CONTROL = byteArrayOf(
-            (0xE1).toByte(), 0x04,           // File ID = 0xE104
-            0x08, 0x00,                    // Max NDEF Size = 2048 байт
-            0x00,                          // Read access
-            0x00                            // Write access
-        )
+        // Commands
+        private val INS_SELECT: Byte = 0xA4.toByte()
+        private val INS_READ_BINARY: Byte = 0xB0.toByte()
+        private val INS_UPDATE_BINARY: Byte = 0xD6.toByte()
 
-        // Команда SELECT NDEF App (стандартная)
-        private val SELECT_NDEF_APP = byteArrayOf(
-            0x00, (0xA4).toByte(), 0x04, 0x00, 0x07,
-            (0xD2).toByte(), 0x76, 0x00, 0x00, (0x85).toByte(), 0x01, 0x01
-        )
+        // SELECT P1/P2 values
+        private const val P1_SELECT_BY_NAME = 0x04
+        private const val P1_SELECT_BY_FILE_ID = 0x00
     }
 
-    private var currentFile: Int = 0 // 0 - none, 1 - CC, 2 - NDEF
+    private var currentFile: Int = 0
     private var ndefData: ByteArray? = null
     private var currentUid: String? = null
 
@@ -67,31 +70,44 @@ class TagHostApduService : HostApduService() {
         try {
             Log.d(TAG, "Received APDU: ${bytesToHex(commandApdu)}")
 
-            // Проверяем, эмулируем ли мы метку
-            val emulatingUid = emulator.getEmulatingTagUid()
-            if (emulatingUid == null) {
-                Log.d(TAG, "No tag being emulated")
+            // Check if we're emulating
+            val emulatingUid = emulator.getEmulatingTagUid() ?: run {
+                Log.d(TAG, "No tag emulating")
                 return SW_FILE_NOT_FOUND
             }
 
-            // Обновляем UID если изменился
+            // Update if UID changed
             if (currentUid != emulatingUid) {
                 currentUid = emulatingUid
-                ndefData = null // Сбросим кэш при смене метки
-                Log.d(TAG, "Switched to emulating tag: $emulatingUid")
+                ndefData = null
+                currentFile = 0
+                Log.d(TAG, "Now emulating: $emulatingUid")
             }
 
-            // Загружаем данные метки из репозитория
+            // Load NDEF data if needed
             if (ndefData == null) {
                 ndefData = loadNdefData(emulatingUid)
+                if (ndefData != null) {
+                    Log.d(TAG, "NDEF data loaded, size: ${ndefData!!.size} bytes")
+                }
             }
 
-            return when {
-                isSelectCommand(commandApdu) -> handleSelectCommand(commandApdu)
-                isReadBinaryCommand(commandApdu) -> handleReadBinaryCommand(commandApdu)
-                isUpdateBinaryCommand(commandApdu) -> handleUpdateBinaryCommand(commandApdu)
+            // Parse command
+            if (commandApdu.size < 4) {
+                return SW_WRONG_LENGTH
+            }
+
+            val ins = commandApdu[1]
+            val p1 = commandApdu[2].toInt() and 0xFF
+            val p2 = commandApdu[3].toInt() and 0xFF
+
+            // Handle command based on INS
+            return when (ins) {
+                INS_SELECT -> handleSelect(p1, p2, commandApdu)
+                INS_READ_BINARY -> handleReadBinary(p1, p2, commandApdu)
+                INS_UPDATE_BINARY -> handleUpdateBinary(p1, p2, commandApdu)
                 else -> {
-                    Log.d(TAG, "Unknown command: ${bytesToHex(commandApdu)}")
+                    Log.d(TAG, "Unknown INS: 0x${ins.toString(16)}")
                     SW_COMMAND_NOT_ALLOWED
                 }
             }
@@ -101,244 +117,210 @@ class TagHostApduService : HostApduService() {
         }
     }
 
-    override fun onDeactivated(reason: Int) {
-        Log.d(TAG, "Deactivated: reason=$reason")
-        currentFile = 0
-        // Не сбрасываем ndefData и currentUid полностью, чтобы при следующей активации было быстрее
-    }
-
-    private fun isSelectCommand(apdu: ByteArray): Boolean {
-        return apdu.size >= 4 &&
-                apdu[0] == 0x00.toByte() &&
-                apdu[1] == 0xA4.toByte()
-    }
-
-    private fun isReadBinaryCommand(apdu: ByteArray): Boolean {
-        return apdu.size >= 4 &&
-                apdu[0] == 0x00.toByte() &&
-                apdu[1] == 0xB0.toByte()
-    }
-
-    private fun isUpdateBinaryCommand(apdu: ByteArray): Boolean {
-        return apdu.size >= 4 &&
-                apdu[0] == 0x00.toByte() &&
-                apdu[1] == 0xD6.toByte()
-    }
-
-    private fun handleSelectCommand(apdu: ByteArray): ByteArray {
+    private fun handleSelect(p1: Int, p2: Int, apdu: ByteArray): ByteArray {
         try {
-            if (apdu.size < 4) return SW_WRONG_LENGTH
+            Log.d(TAG, "SELECT: P1=0x${p1.toString(16)}, P2=0x${p2.toString(16)}")
 
-            val p1 = apdu[2].toInt() and 0xFF
-            val p2 = apdu[3].toInt() and 0xFF
+            // SELECT by AID (Application ID)
+            if (p1 == P1_SELECT_BY_NAME) {
+                if (apdu.size < 5) return SW_WRONG_LENGTH
 
-            Log.d(TAG, "SELECT command: P1=$p1, P2=$p2")
-
-            // SELECT by name (AID)
-            if (p1 == 0x04 && apdu.size > 5) {
                 val aidLength = apdu[4].toInt() and 0xFF
-                if (aidLength > 0 && 5 + aidLength <= apdu.size) {
-                    val aid = apdu.copyOfRange(5, 5 + aidLength)
-                    Log.d(TAG, "SELECT AID: ${bytesToHex(aid)}")
+                if (aidLength <= 0 || 5 + aidLength > apdu.size) {
+                    return SW_WRONG_LENGTH
+                }
 
-                    // Принимаем любой AID (для совместимости)
-                    currentFile = 1
+                val aid = apdu.copyOfRange(5, 5 + aidLength)
+                Log.d(TAG, "SELECT AID: ${bytesToHex(aid)}")
+
+                // Check if it matches our NDEF AID
+                if (aid.contentEquals(NDEF_AID)) {
+                    Log.d(TAG, "NDEF application selected")
+                    currentFile = 0 // Reset file selection
                     return SW_SUCCESS
                 }
+
+                Log.d(TAG, "Unknown AID")
+                return SW_FILE_NOT_FOUND
             }
 
-            // SELECT by file ID (обычно P1=0x00, P2=0x0C)
-            if (p1 == 0x00 && apdu.size >= 7) {
+            // SELECT by File ID
+            if (p1 == P1_SELECT_BY_FILE_ID) {
+                if (apdu.size < 7) return SW_WRONG_LENGTH
+
                 val fileIdHi = apdu[5].toInt() and 0xFF
                 val fileIdLo = apdu[6].toInt() and 0xFF
                 val fileId = (fileIdHi shl 8) or fileIdLo
 
-                Log.d(TAG, "SELECT file: 0x${Integer.toHexString(fileId)}")
+                Log.d(TAG, "SELECT File ID: 0x${fileId.toString(16)}")
 
                 when (fileId) {
-                    0xE103 -> { // CC file
+                    FILE_ID_CC -> {
                         currentFile = 1
+                        Log.d(TAG, "CC file selected")
                         return SW_SUCCESS
                     }
-                    0xE104 -> { // NDEF file
+                    FILE_ID_NDEF -> {
                         currentFile = 2
+                        Log.d(TAG, "NDEF file selected")
                         return SW_SUCCESS
+                    }
+                    else -> {
+                        Log.d(TAG, "Unknown file ID")
+                        return SW_FILE_NOT_FOUND
                     }
                 }
             }
 
-            // Если это команда SELECT NDEF App
-            if (apdu.size >= 12 && apdu[0] == 0x00.toByte() && apdu[1] == 0xA4.toByte()) {
-                if (apdu[4] == 0x07.toByte()) { // Длина AID = 7
-                    val aid = apdu.copyOfRange(5, 12)
-                    Log.d(TAG, "Possible NDEF AID: ${bytesToHex(aid)}")
-                    currentFile = 1
-                    return SW_SUCCESS
-                }
-            }
-
-            Log.d(TAG, "Unknown SELECT command")
+            Log.d(TAG, "Unsupported SELECT parameters")
             return SW_FILE_NOT_FOUND
-
         } catch (e: Exception) {
-            Log.e(TAG, "Error in handleSelectCommand", e)
+            Log.e(TAG, "Error in handleSelect", e)
             return SW_FILE_NOT_FOUND
         }
     }
 
-    private fun handleReadBinaryCommand(apdu: ByteArray): ByteArray {
+    private fun handleReadBinary(p1: Int, p2: Int, apdu: ByteArray): ByteArray {
         try {
-            if (apdu.size < 5) return SW_WRONG_LENGTH
-
-            val p1 = apdu[2].toInt() and 0xFF
-            val p2 = apdu[3].toInt() and 0xFF
-            val le = apdu[4].toInt() and 0xFF
-
             val offset = (p1 shl 8) or p2
+            val le = if (apdu.size > 4) apdu[4].toInt() and 0xFF else 0
 
-            Log.d(TAG, "READ BINARY: offset=$offset, length=$le, currentFile=$currentFile")
+            Log.d(TAG, "READ BINARY: offset=$offset, le=$le, currentFile=$currentFile")
 
             return when (currentFile) {
-                1 -> {
-                    // Чтение CC файла
-                    if (offset < CC_FILE.size) {
-                        val end = minOf(offset + le, CC_FILE.size)
-                        val response = CC_FILE.copyOfRange(offset, end)
-                        // Добавляем статусный байт
-                        return response + SW_SUCCESS
-                    } else {
-                        SW_EOF
-                    }
-                }
-
-                2 -> {
-                    // Чтение NDEF файла с данными метки
-                    if (ndefData == null) {
-                        Log.e(TAG, "NDEF data is null")
-                        return SW_FILE_NOT_FOUND
-                    }
-
-                    ndefData?.let { data ->
-                        if (offset < data.size) {
-                            val end = minOf(offset + le, data.size)
-                            val response = data.copyOfRange(offset, end)
-                            Log.d(TAG, "Returning ${response.size} bytes from NDEF file")
-                            return response + SW_SUCCESS
-                        } else {
-                            Log.d(TAG, "EOF: offset=$offset >= data.size=${data.size}")
-                            return SW_EOF
-                        }
-                    } ?: SW_FILE_NOT_FOUND
-                }
-
+                1 -> readFromCCFile(offset, le)
+                2 -> readFromNdefFile(offset, le)
                 else -> {
                     Log.d(TAG, "No file selected")
                     SW_FILE_NOT_FOUND
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error in handleReadBinaryCommand", e)
+            Log.e(TAG, "Error in handleReadBinary", e)
             return SW_COMMAND_NOT_ALLOWED
         }
     }
 
-    private fun handleUpdateBinaryCommand(apdu: ByteArray): ByteArray {
-        Log.d(TAG, "UPDATE BINARY command (write not supported)")
+    private fun readFromCCFile(offset: Int, le: Int): ByteArray {
+        if (offset >= CC_FILE.size) {
+            return SW_EOF
+        }
+
+        val available = CC_FILE.size - offset
+        val length = if (le == 0) available else minOf(le, available)
+
+        val response = CC_FILE.copyOfRange(offset, offset + length)
+        Log.d(TAG, "Read $length bytes from CC file")
+
+        return response + SW_SUCCESS
+    }
+
+    private fun readFromNdefFile(offset: Int, le: Int): ByteArray {
+        if (ndefData == null) {
+            Log.e(TAG, "NDEF data is null")
+            return SW_FILE_NOT_FOUND
+        }
+
+        val data = ndefData!!
+
+        if (offset >= data.size) {
+            return SW_EOF
+        }
+
+        val available = data.size - offset
+        val length = if (le == 0) available else minOf(le, available)
+
+        val response = data.copyOfRange(offset, offset + length)
+        Log.d(TAG, "Read $length bytes from NDEF file at offset $offset")
+
+        return response + SW_SUCCESS
+    }
+
+    private fun handleUpdateBinary(p1: Int, p2: Int, apdu: ByteArray): ByteArray {
+        Log.d(TAG, "UPDATE BINARY - write not supported")
         return SW_COMMAND_NOT_ALLOWED
     }
 
     private fun loadNdefData(uid: String): ByteArray {
-        try {
-            // Пытаемся получить сохраненную метку из репозитория
+        return try {
             val tag = repository.getTagByUid(uid)
 
-            // Если есть сохраненное NDEF сообщение - используем его
             if (tag?.ndefMessage != null && tag.ndefMessage!!.isNotEmpty()) {
-                Log.d(TAG, "Using saved NDEF message from repository, size: ${tag.ndefMessage!!.size}")
+                Log.d(TAG, "Using saved NDEF message, type: ${tag.type}")
                 return tag.ndefMessage!!
             }
 
-            // Иначе создаем стандартное сообщение с URL
-            Log.d(TAG, "Creating default NDEF message for UID: $uid")
-            return createDefaultNdefMessage(uid)
+            Log.d(TAG, "Creating default NDEF message")
+            createDefaultNdefMessage(uid)
 
         } catch (e: Exception) {
             Log.e(TAG, "Error loading NDEF data", e)
-            return createDefaultNdefMessage(uid)
+            createDefaultNdefMessage(uid)
         }
     }
 
     private fun createDefaultNdefMessage(uid: String): ByteArray {
-        // Создаем NDEF сообщение с URL, содержащим UID метки
+        // Create a proper NDEF message with a URL
         val url = "https://example.com/tag/$uid"
-        val ndefRecord = createNdefUrlRecord(url)
 
-        // Формат Type 4 Tag: [NLEN][NDEF Message]
-        // NLEN = 2 байта, big-endian
-        val result = ByteBuffer.allocate(2 + ndefRecord.size)
-        result.putShort(ndefRecord.size.toShort())
-        result.put(ndefRecord)
+        // Create URI record
+        val uriRecord = createNdefUriRecord(url)
 
-        return result.array()
+        // Wrap with NLEN (2 bytes length)
+        val message = ByteArray(2 + uriRecord.size)
+        message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
+        message[1] = (uriRecord.size and 0xFF).toByte()
+        System.arraycopy(uriRecord, 0, message, 2, uriRecord.size)
+
+        return message
     }
 
-    private fun createNdefUrlRecord(url: String): ByteArray {
-        try {
-            // Создаем NDEF запись типа URL (URI)
-            // TNF = 0x01 (NFC Forum well-known type), Type = "U" (URI)
+    private fun createNdefUriRecord(url: String): ByteArray {
+        // NDEF URI Record format according to NFC Forum specification
+        // Header: MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
+        val header: Byte = 0xD1.toByte()
 
-            val urlBytes = url.toByteArray(Charset.forName("UTF-8"))
+        // Type length = 1 (for "U")
+        val typeLength: Byte = 0x01
 
-            // URI Identifier Code
-            val uriCode: Byte = when {
-                url.startsWith("http://www.") -> 0x01
-                url.startsWith("https://www.") -> 0x02
-                url.startsWith("http://") -> 0x03
-                url.startsWith("https://") -> 0x04
-                else -> 0x00
-            }
+        // Determine URI prefix code
+        val (uriCode, cleanUrl) = getUriCodeAndCleanUrl(url)
+        val urlBytes = cleanUrl.toByteArray(Charset.forName("UTF-8"))
 
-            // Убираем префикс если он есть
-            val cleanUrl = when (uriCode) {
-                0x01.toByte() -> url.substring(11) // "http://www."
-                0x02.toByte() -> url.substring(12) // "https://www."
-                0x03.toByte() -> url.substring(7)  // "http://"
-                0x04.toByte() -> url.substring(8)  // "https://"
-                else -> url
-            }
+        // Payload length = URI code (1) + URL bytes
+        val payloadLength = (urlBytes.size + 1).toByte()
 
-            val cleanUrlBytes = cleanUrl.toByteArray(Charset.forName("UTF-8"))
+        // Type = 'U' (0x55)
+        val type: Byte = 0x55.toByte()
 
-            // Создаем NDEF запись
-            val record = ByteBuffer.allocate(4 + cleanUrlBytes.size)
+        // Build record: Header (1) + Type Length (1) + Payload Length (1) + Type (1) + Payload
+        val record = ByteArray(4 + 1 + urlBytes.size)
+        var pos = 0
+        record[pos++] = header
+        record[pos++] = typeLength
+        record[pos++] = payloadLength
+        record[pos++] = type
+        record[pos++] = uriCode
+        urlBytes.forEach { record[pos++] = it }
 
-            // Header: MB=1, ME=1, SR=1, IL=0, TNF=0x01
-            record.put(0xD1.toByte())
+        return record
+    }
 
-            // Type length = 1
-            record.put(0x01)
-
-            // Payload length (URI code + URL)
-            record.put((cleanUrlBytes.size + 1).toByte())
-
-            // Type = 'U' (URI)
-            record.put(0x55.toByte())
-
-            // URI Identifier Code
-            record.put(uriCode)
-
-            // URI
-            record.put(cleanUrlBytes)
-
-            return record.array()
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error creating NDEF URL record", e)
-            // Возвращаем минимальное валидное NDEF сообщение в случае ошибки
-            return byteArrayOf(
-                0xD1.toByte(), 0x01, 0x01, 0x55.toByte(), 0x00
-            )
+    private fun getUriCodeAndCleanUrl(url: String): Pair<Byte, String> {
+        return when {
+            url.startsWith("http://www.") -> Pair(0x01, url.substring(11))
+            url.startsWith("https://www.") -> Pair(0x02, url.substring(12))
+            url.startsWith("http://") -> Pair(0x03, url.substring(7))
+            url.startsWith("https://") -> Pair(0x04, url.substring(8))
+            url.startsWith("tel:") -> Pair(0x04, url.substring(4))
+            url.startsWith("mailto:") -> Pair(0x04, url.substring(7))
+            else -> Pair(0x00, url)
         }
+    }
+
+    override fun onDeactivated(reason: Int) {
+        Log.d(TAG, "Deactivated: reason=$reason")
+        currentFile = 0
     }
 
     private fun bytesToHex(bytes: ByteArray): String {

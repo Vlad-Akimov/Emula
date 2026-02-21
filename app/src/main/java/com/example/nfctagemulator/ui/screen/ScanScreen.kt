@@ -26,7 +26,8 @@ import com.example.nfctagemulator.ui.theme.*
 fun ScanScreen(
     repository: TagRepository,
     scannedTag: TagData?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onCreateClick: () -> Unit
 ) {
     val context = LocalContext.current
     var lastScannedUid by remember { mutableStateOf<String?>(null) }
@@ -86,6 +87,22 @@ fun ScanScreen(
                         Text("←", fontSize = 20.sp, color = NeonCyan)
                     }
                 },
+                actions = {
+                    // Create button in top bar
+                    Button(
+                        onClick = onCreateClick,
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(end = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonGreen.copy(alpha = 0.2f),
+                            contentColor = NeonGreen
+                        )
+                    ) {
+                        Text("CREATE", fontSize = 12.sp)
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -115,7 +132,7 @@ fun ScanScreen(
                         .size(200.dp)
                         .scale(if (isScanning) pulseScale else 1f)
                         .drawBehind {
-                            // Scanning arc - рисуем вручную без Stroke
+                            // Scanning arc
                             val arcSize = size.minDimension * 0.8f
                             val arcOffset = (size.minDimension - arcSize) / 2
 

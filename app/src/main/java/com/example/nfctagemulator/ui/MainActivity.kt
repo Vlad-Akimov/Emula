@@ -32,6 +32,7 @@ import com.example.nfctagemulator.nfc.emulator.TagEmulator
 import com.example.nfctagemulator.nfc.reader.NfcReader
 import com.example.nfctagemulator.ui.components.TagCard
 import com.example.nfctagemulator.ui.screen.ScanScreen
+import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.theme.*
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var repository: TagRepository
     private lateinit var emulator: TagEmulator
     private var showScanScreen = mutableStateOf(false)
+    private var showCreateScreen = mutableStateOf(false)
     private var scannedTag = mutableStateOf<TagData?>(null)
     private var isEmulating = mutableStateOf(false)
 
@@ -60,6 +62,20 @@ class MainActivity : ComponentActivity() {
                         onBackClick = {
                             showScanScreen.value = false
                             scannedTag.value = null
+                        },
+                        onCreateClick = {
+                            showScanScreen.value = false
+                            showCreateScreen.value = true
+                        }
+                    )
+                } else if (showCreateScreen.value) {
+                    CreateTagScreen(
+                        repository = repository,
+                        onBackClick = {
+                            showCreateScreen.value = false
+                        },
+                        onTagCreated = {
+                            showCreateScreen.value = false
                         }
                     )
                 } else {
@@ -98,7 +114,7 @@ class MainActivity : ComponentActivity() {
         if (isEmulating.value) {
             Toast.makeText(
                 this,
-                "The emulation mode is active. Stop the emulation to scan.",
+                "Emulation mode is active. Stop emulation to scan.",
                 Toast.LENGTH_SHORT
             ).show()
             return
@@ -106,18 +122,18 @@ class MainActivity : ComponentActivity() {
 
         val tagData = reader.readTag(intent)
         tagData?.let {
-            // Проверяем, существует ли уже метка с таким UID
+            // Check if tag with this UID already exists
             val existingTag = repository.getTagByUid(it.uid)
 
             if (existingTag != null) {
-                // Метка уже существует
+                // Tag already exists
                 Toast.makeText(
                     this,
-                    "⚠️ The label has already been saved as \"${existingTag.name}\"",
+                    "⚠️ Tag already saved as \"${existingTag.name}\"",
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                // Сохраняем новую метку
+                // Save new tag
                 repository.saveTag(it)
                 if (showScanScreen.value) {
                     scannedTag.value = it
@@ -223,23 +239,20 @@ fun EmulatorMainScreen(
                         }
                     }
 
-                    // Action buttons
-                    Row {
-                        // Scan button
-                        Button(
-                            onClick = onScanClick,
-                            enabled = !isEmulating,
-                            modifier = Modifier
-                                .height(40.dp)
-                                .width(100.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = NeonCyan.copy(alpha = 0.2f),
-                                contentColor = NeonCyan
-                            )
-                        ) {
-                            Text("SCAN", fontSize = 12.sp)
-                        }
+                    // Scan button only
+                    Button(
+                        onClick = onScanClick,
+                        enabled = !isEmulating,
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(100.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonCyan.copy(alpha = 0.2f),
+                            contentColor = NeonCyan
+                        )
+                    ) {
+                        Text("SCAN", fontSize = 12.sp)
                     }
                 }
             }
@@ -248,7 +261,10 @@ fun EmulatorMainScreen(
 
             // Content
             if (tags.isEmpty()) {
-                EmptyState(isEmulating, onScanClick)
+                EmptyState(
+                    isEmulating = isEmulating,
+                    onScanClick = onScanClick
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier
@@ -271,7 +287,7 @@ fun EmulatorMainScreen(
                                     emulator.setEmulatingTag(selectedTag)
                                     emulatingUid = selectedTag.uid
                                     onEmulationStateChanged(true)
-                                    Toast.makeText(context, "Emulation: ${selectedTag.name}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Emulating: ${selectedTag.name}", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             onRenameClick = { tagToRename ->
@@ -331,7 +347,7 @@ fun EmulatorMainScreen(
                     }
 
                     showDeleteDialog = false
-                    Toast.makeText(context, "The label has been deleted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Tag deleted", Toast.LENGTH_SHORT).show()
                 }
             },
             onDismiss = { showDeleteDialog = false }
@@ -417,7 +433,7 @@ fun EmptyState(
                         text = if (isEmulating)
                             "Your device is acting as an NFC tag.\nBring another device close to read it."
                         else
-                            "Tap the scan button to save your first NFC tag",
+                            "Scan a physical tag to get started",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
@@ -431,17 +447,15 @@ fun EmptyState(
                 Button(
                     onClick = onScanClick,
                     modifier = Modifier
-                        .fillMaxWidth(0.7f)
+                        .fillMaxWidth(0.5f)
                         .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = NeonCyan
                     )
                 ) {
-                    Text("SCAN TAG", color = Color.Black)
+                    Text("SCAN", color = Color.Black)
                 }
-            } else {
-                // Stop button would be handled by TagCard
             }
         }
     }

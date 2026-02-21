@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- NFC разрешение -->
+    <!-- NFC permission -->
     <uses-permission android:name="android.permission.NFC" />
 
-    <!-- Требуем наличие NFC -->
+    <!-- Require NFC -->
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="true" />
@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NfcTagEmulator">
 
-        <!-- Основная активность -->
+        <!-- Main Activity -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -33,7 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Фильтр для обнаружения NFC меток -->
+            <!-- Filter for NFC tag discovery -->
             <intent-filter>
                 <action android:name="android.nfc.action.TAG_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -45,7 +45,7 @@
 
         </activity>
 
-        <!-- Сервис эмуляции NFC метки (HCE) -->
+        <!-- HCE Service for NFC tag emulation -->
         <service
             android:name=".nfc.emulator.TagHostApduService"
             android:exported="true"

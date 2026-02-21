@@ -3,33 +3,21 @@
     android:description="@string/service_description"
     android:requireDeviceUnlock="false">
 
-    <!-- Используем категорию "other" для избежания конфликтов -->
+    <!-- Using "other" category to avoid conflicts with payment apps -->
     <aid-group
         android:description="@string/aid_group_description"
         android:category="other">
 
-        <!-- Стандартный AID для NDEF тегов (Type 4 Tag) - основной -->
+        <!-- Standard NDEF Type 4 Tag AID (NFC Forum) - Main -->
         <aid-filter android:name="D2760000850101"/>
 
-        <!-- Альтернативные AID для NDEF -->
+        <!-- Alternative NDEF AIDs for better compatibility -->
         <aid-filter android:name="D2760000850100"/>
         <aid-filter android:name="D2760000850102"/>
+        <aid-filter android:name="D2760000850110"/>
 
-        <!-- AID для MIFARE Classic эмуляции -->
-        <aid-filter android:name="F222222222"/>
-
-        <!-- AID для простой текстовой метки -->
-        <aid-filter android:name="F123456789"/>
-
-        <!-- AID для URI/URL -->
-        <aid-filter android:name="F123456788"/>
-
-        <!-- Дополнительные AID для совместимости -->
-        <aid-filter android:name="D2760000850103"/>
-        <aid-filter android:name="D2760000850104"/>
-
-        <!-- AID для Smart Poster (SP) -->
-        <aid-filter android:name="D2760000850105"/>
+        <!-- Generic NDEF AID for broader compatibility -->
+        <aid-filter android:name="F0010203040506"/>
 
     </aid-group>
 
