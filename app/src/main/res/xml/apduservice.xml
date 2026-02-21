@@ -3,21 +3,42 @@
     android:description="@string/service_description"
     android:requireDeviceUnlock="false">
 
-    <!-- Using "other" category to avoid conflicts with payment apps -->
+    <!-- NDEF Type 4 Tag AIDs -->
     <aid-group
-        android:description="@string/aid_group_description"
+        android:description="@string/aid_group_ndef"
         android:category="other">
 
-        <!-- Standard NDEF Type 4 Tag AID (NFC Forum) - Main -->
+        <!-- Standard NDEF Type 4 Tag AID (NFC Forum) -->
         <aid-filter android:name="D2760000850101"/>
-
-        <!-- Alternative NDEF AIDs for better compatibility -->
         <aid-filter android:name="D2760000850100"/>
         <aid-filter android:name="D2760000850102"/>
         <aid-filter android:name="D2760000850110"/>
 
-        <!-- Generic NDEF AID for broader compatibility -->
+    </aid-group>
+
+    <!-- MIFARE Classic Emulation AIDs -->
+    <aid-group
+        android:description="@string/aid_group_mifare"
+        android:category="other">
+
+        <!-- Generic MIFARE AID for HCE -->
         <aid-filter android:name="F0010203040506"/>
+
+        <!-- Troika specific -->
+        <aid-filter android:name="F0123456789012"/>
+
+        <!-- University card specific -->
+        <aid-filter android:name="F0987654321098"/>
+
+    </aid-group>
+
+    <!-- Fallback for broad compatibility -->
+    <aid-group
+        android:description="@string/aid_group_fallback"
+        android:category="other">
+
+        <!-- Catch-all for unknown cards -->
+        <aid-filter android:name="FFFFFFFFFFFFFFFF"/>
 
     </aid-group>
 

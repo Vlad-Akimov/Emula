@@ -3,6 +3,7 @@ package com.example.nfctagemulator.nfc.emulator
 import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
 import android.util.Log
+import com.example.nfctagemulator.data.model.TagType
 import com.example.nfctagemulator.data.repository.TagRepository
 import java.nio.charset.Charset
 
@@ -10,6 +11,7 @@ class TagHostApduService : HostApduService() {
 
     private lateinit var repository: TagRepository
     private lateinit var emulator: TagEmulator
+    private lateinit var mifareEmulator: MifareClassicEmulator
 
     companion object {
         private const val TAG = "TagHostApduService"
@@ -26,21 +28,26 @@ class TagHostApduService : HostApduService() {
             0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x01
         )
 
-        // File IDs for Type 4 Tag
-        private const val FILE_ID_CC = 0xE103  // Capability Container
-        private const val FILE_ID_NDEF = 0xE104 // NDEF File
+        // MIFARE AIDs (for host-based card emulation)
+        private val MIFARE_AID = byteArrayOf(
+            0xF0.toByte(), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
+        )
 
-        // Capability Container for Type 4 Tag (validated format)
+        // File IDs for Type 4 Tag
+        private const val FILE_ID_CC = 0xE103
+        private const val FILE_ID_NDEF = 0xE104
+
+        // Capability Container for Type 4 Tag
         private val CC_FILE = byteArrayOf(
             0x00, 0x0F,                    // CCLEN = 15 bytes
             0x20,                           // Mapping Version 2.0
-            0x00.toByte(), 0x40.toByte(),   // Maximum R-APDU data size = 64
-            0x00.toByte(), 0x40.toByte(),   // Maximum C-APDU data size = 64
+            0x00.toByte(), 0x40.toByte(),   // Max R-APDU data size = 64
+            0x00.toByte(), 0x40.toByte(),   // Max C-APDU data size = 64
             0x04,                           // NDEF File Control TLV present
             0x06,                           // TLV length = 6
-            (FILE_ID_NDEF shr 8).toByte(),   // NDEF File ID (high byte)
-            (FILE_ID_NDEF and 0xFF).toByte(), // NDEF File ID (low byte)
-            0x08, 0x00,                     // Maximum NDEF size = 2048 bytes
+            (FILE_ID_NDEF shr 8).toByte(),
+            (FILE_ID_NDEF and 0xFF).toByte(),
+            0x08, 0x00,                     // Max NDEF size = 2048 bytes
             0x00,                           // Read access always
             0x00                            // Write access always
         )
@@ -58,11 +65,13 @@ class TagHostApduService : HostApduService() {
     private var currentFile: Int = 0
     private var ndefData: ByteArray? = null
     private var currentUid: String? = null
+    private var isMifareMode = false
 
     override fun onCreate() {
         super.onCreate()
         repository = TagRepository(this)
         emulator = TagEmulator(this)
+        mifareEmulator = MifareClassicEmulator()
         Log.d(TAG, "TagHostApduService created")
     }
 
@@ -79,21 +88,16 @@ class TagHostApduService : HostApduService() {
             // Update if UID changed
             if (currentUid != emulatingUid) {
                 currentUid = emulatingUid
-                ndefData = null
-                currentFile = 0
-                Log.d(TAG, "Now emulating: $emulatingUid")
+                loadTagData(emulatingUid)
+                Log.d(TAG, "Now emulating: $emulatingUid, mode: ${if (isMifareMode) "MIFARE" else "NDEF"}")
             }
 
-            // Load NDEF data if needed
-            if (ndefData == null) {
-                ndefData = loadNdefData(emulatingUid)
-                if (ndefData != null) {
-                    Log.d(TAG, "NDEF data loaded, size: ${ndefData!!.size} bytes")
-                    Log.d(TAG, "NDEF data hex: ${bytesToHex(ndefData!!)}")
-                }
+            // If in MIFARE mode, use MIFARE emulator
+            if (isMifareMode) {
+                return mifareEmulator.processCommand(commandApdu)
             }
 
-            // Parse command
+            // Parse command for NDEF mode
             if (commandApdu.size < 4) {
                 return SW_WRONG_LENGTH
             }
@@ -102,7 +106,6 @@ class TagHostApduService : HostApduService() {
             val p1 = commandApdu[2].toInt() and 0xFF
             val p2 = commandApdu[3].toInt() and 0xFF
 
-            // Handle command based on INS
             return when (ins) {
                 INS_SELECT -> handleSelect(p1, p2, commandApdu)
                 INS_READ_BINARY -> handleReadBinary(p1, p2, commandApdu)
@@ -115,6 +118,30 @@ class TagHostApduService : HostApduService() {
         } catch (e: Exception) {
             Log.e(TAG, "Error processing APDU", e)
             return SW_COMMAND_NOT_ALLOWED
+        }
+    }
+
+    private fun loadTagData(uid: String) {
+        val tag = repository.getTagByUid(uid)
+
+        if (tag != null) {
+            // Check if it's a MIFARE type card
+            isMifareMode = tag.type == TagType.MIFARE_CLASSIC ||
+                    tag.type == TagType.MIFARE_ULTRALIGHT ||
+                    tag.type == TagType.TROIKA ||
+                    tag.type == TagType.UNIVERSITY_CARD
+
+            if (isMifareMode) {
+                mifareEmulator.initialize(tag)
+                ndefData = null
+                Log.d(TAG, "Initialized MIFARE emulator for type: ${tag.type}")
+            } else {
+                ndefData = tag.ndefMessage
+                if (ndefData == null) {
+                    ndefData = createDefaultNdefMessage(uid)
+                }
+                Log.d(TAG, "Loaded NDEF data, size: ${ndefData?.size} bytes")
+            }
         }
     }
 
@@ -134,10 +161,18 @@ class TagHostApduService : HostApduService() {
                 val aid = apdu.copyOfRange(5, 5 + aidLength)
                 Log.d(TAG, "SELECT AID: ${bytesToHex(aid)}")
 
+                // Check if it's MIFARE AID
+                if (aid.contentEquals(MIFARE_AID)) {
+                    Log.d(TAG, "MIFARE application selected")
+                    isMifareMode = true
+                    return SW_SUCCESS
+                }
+
                 // Check if it matches our NDEF AID
                 if (aid.contentEquals(NDEF_AID)) {
                     Log.d(TAG, "NDEF application selected")
-                    currentFile = 0 // Reset file selection
+                    isMifareMode = false
+                    currentFile = 0
                     return SW_SUCCESS
                 }
 
@@ -145,7 +180,7 @@ class TagHostApduService : HostApduService() {
                 return SW_FILE_NOT_FOUND
             }
 
-            // SELECT by File ID
+            // SELECT by File ID (for NDEF mode)
             if (p1 == P1_SELECT_BY_FILE_ID) {
                 if (apdu.size < 7) return SW_WRONG_LENGTH
 
@@ -242,40 +277,10 @@ class TagHostApduService : HostApduService() {
         return SW_COMMAND_NOT_ALLOWED
     }
 
-    private fun loadNdefData(uid: String): ByteArray {
-        return try {
-            val tag = repository.getTagByUid(uid)
-
-            if (tag?.ndefMessage != null && tag.ndefMessage!!.isNotEmpty()) {
-                Log.d(TAG, "Using saved NDEF message, type: ${tag.type}")
-
-                // Log the first few bytes to verify format
-                val message = tag.ndefMessage!!
-                if (message.size >= 2) {
-                    val ndefLength = ((message[0].toInt() and 0xFF) shl 8) or (message[1].toInt() and 0xFF)
-                    Log.d(TAG, "NDEF message length field: $ndefLength, actual size: ${message.size}")
-                }
-
-                return message
-            }
-
-            Log.d(TAG, "Creating default NDEF message")
-            createDefaultNdefMessage(uid)
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error loading NDEF data", e)
-            createDefaultNdefMessage(uid)
-        }
-    }
-
     private fun createDefaultNdefMessage(uid: String): ByteArray {
-        // Create a proper NDEF message with a URL
         val url = "https://example.com/tag/$uid"
-
-        // Create URI record
         val uriRecord = createNdefUriRecord(url)
 
-        // Wrap with NLEN (2 bytes length)
         val message = ByteArray(2 + uriRecord.size)
         message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
         message[1] = (uriRecord.size and 0xFF).toByte()
@@ -285,24 +290,14 @@ class TagHostApduService : HostApduService() {
     }
 
     private fun createNdefUriRecord(url: String): ByteArray {
-        // NDEF URI Record format according to NFC Forum specification
-        // Header: MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
         val header: Byte = 0xD1.toByte()
-
-        // Type length = 1 (for "U")
         val typeLength: Byte = 0x01
 
-        // Determine URI prefix code
         val (uriCode, cleanUrl) = getUriCodeAndCleanUrl(url)
         val urlBytes = cleanUrl.toByteArray(Charset.forName("UTF-8"))
-
-        // Payload length = URI code (1) + URL bytes
         val payloadLength = (urlBytes.size + 1).toByte()
-
-        // Type = 'U' (0x55)
         val type: Byte = 0x55.toByte()
 
-        // Build record: Header (1) + Type Length (1) + Payload Length (1) + Type (1) + Payload
         val record = ByteArray(4 + 1 + urlBytes.size)
         var pos = 0
         record[pos++] = header
@@ -330,6 +325,7 @@ class TagHostApduService : HostApduService() {
     override fun onDeactivated(reason: Int) {
         Log.d(TAG, "Deactivated: reason=$reason")
         currentFile = 0
+        isMifareMode = false
     }
 
     private fun bytesToHex(bytes: ByteArray): String {

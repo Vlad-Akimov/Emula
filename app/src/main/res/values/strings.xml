@@ -1,5 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Emula</string>
+    <!-- App name -->
+    <string name="app_name">NFC Tag Emulator</string>
+
+    <!-- Service descriptions -->
     <string name="service_description">NFC Tag Emulation Service</string>
-    <string name="aid_group_description">Emulated NFC Tags</string>
+    <string name="aid_group_description">NFC Tag Types</string>
+    <string name="aid_group_ndef">NDEF Tags</string>
+    <string name="aid_group_mifare">MIFARE Cards</string>
+    <string name="aid_group_fallback">Other Cards</string>
+
+    <!-- Tag types -->
+    <string name="tag_type_ndef_text">Text NDEF</string>
+    <string name="tag_type_ndef_uri">URI NDEF</string>
+    <string name="tag_type_ndef_smart_poster">Smart Poster</string>
+    <string name="tag_type_ndef_vcard">vCard</string>
+    <string name="tag_type_mifare_classic">MIFARE Classic</string>
+    <string name="tag_type_mifare_ultralight">MIFARE Ultralight</string>
+    <string name="tag_type_mifare_desfire">MIFARE Desfire</string>
+    <string name="tag_type_iso_dep">ISO DEP</string>
+    <string name="tag_type_troika">Troika Card</string>
+    <string name="tag_type_university">University Card</string>
+    <string name="tag_type_unknown">Unknown</string>
+
+    <!-- Common UI strings -->
+    <string name="app_name_full">NFC Tag Emulator</string>
+    <string name="scan">SCAN</string>
+    <string name="create">CREATE</string>
+    <string name="save">SAVE</string>
+    <string name="cancel">CANCEL</string>
+    <string name="delete">DELETE</string>
+    <string name="rename">RENAME</string>
+    <string name="back">BACK</string>
+    <string name="emulate">EMULATE</string>
+    <string name="stop">STOP</string>
+
+    <!-- Screen titles -->
+    <string name="title_scan">SCAN NFC</string>
+    <string name="title_emulator">NFC EMULATOR</string>
+    <string name="title_create">CREATE TAG</string>
+    <string name="title_saved">SAVED TAGS</string>
+
+    <!-- Status messages -->
+    <string name="status_active">ACTIVE</string>
+    <string name="status_ready">READY</string>
+    <string name="status_scanning">SCANNING</string>
+    <string name="status_tag_detected">TAG DETECTED</string>
+    <string name="status_no_tags">NO TAGS</string>
+    <string name="status_emulating">EMULATING</string>
+
+    <!-- Instructions -->
+    <string name="instruction_scan">Bring an NFC tag close to your device</string>
+    <string name="instruction_emulating">Your device is acting as an NFC tag.\nBring another device close to read it.</string>
+    <string name="instruction_no_tags">Scan a physical tag to get started</string>
+    <string name="instruction_tag_saved">Tag saved successfully</string>
+
+    <!-- Toast messages -->
+    <string name="toast_tag_saved">✅ %s</string>
+    <string name="toast_tag_already_exists">⚠️ Tag already saved as \"%s\"</string>
+    <string name="toast_emulation_started">Emulating: %s</string>
+    <string name="toast_emulation_stopped">Emulation stopped</string>
+    <string name="toast_name_updated">Name updated</string>
+    <string name="toast_tag_deleted">Tag deleted</string>
+    <string name="toast_emulation_active">Emulation mode is active. Stop emulation to scan.</string>
+
+    <!-- Dialog titles -->
+    <string name="dialog_rename_title">✏️ Rename Tag</string>
+    <string name="dialog_delete_title">🗑️ Delete Tag</string>
+    <string name="dialog_delete_message">Are you sure you want to delete \"%s\"?</string>
+    <string name="dialog_tag_name">Tag name</string>
+
+    <!-- Create tag screen -->
+    <string name="create_tag_name_hint">Enter tag name</string>
+    <string name="create_tag_uid_hint">Tag UID (optional)</string>
+    <string name="create_tag_type">Tag Type</string>
+    <string name="create_tag_ndef">NDEF Message</string>
+    <string name="create_tag_url">URL</string>
+    <string name="create_tag_text">Text</string>
+
+    <!-- Tag info -->
+    <string name="tag_info_uid">UID: %s</string>
+    <string name="tag_info_type">Type: %s</string>
+    <string name="tag_info_tech">Technologies: %d</string>
+    <string name="tag_info_scanned">Scanned: %d</string>
+
+    <!-- Errors -->
+    <string name="error_nfc_not_supported">NFC is not supported on this device</string>
+    <string name="error_nfc_disabled">NFC is disabled. Please enable it in settings.</string>
+    <string name="error_reading_tag">Error reading tag</string>
+    <string name="error_saving_tag">Error saving tag</string>
+
+    <!-- Menu items -->
+    <string name="menu_scan">Scan</string>
+    <string name="menu_create">Create</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_about">About</string>
 </resources>
