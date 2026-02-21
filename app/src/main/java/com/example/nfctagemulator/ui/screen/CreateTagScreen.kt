@@ -183,7 +183,7 @@ fun CreateTagScreen(
                             color = if (selectedType == CreateTagType.PHONE) NeonCyan else Color.White.copy(alpha = 0.7f)
                         )
                         Text(
-                            text = "Phone number",
+                            text = "Call number",
                             style = MaterialTheme.typography.labelSmall,
                             color = if (selectedType == CreateTagType.PHONE) NeonPurple else Color.White.copy(alpha = 0.5f),
                             fontSize = 8.sp,
@@ -220,7 +220,7 @@ fun CreateTagScreen(
                             color = if (selectedType == CreateTagType.EMAIL) NeonCyan else Color.White.copy(alpha = 0.7f)
                         )
                         Text(
-                            text = "Email address",
+                            text = "Send email",
                             style = MaterialTheme.typography.labelSmall,
                             color = if (selectedType == CreateTagType.EMAIL) NeonPurple else Color.White.copy(alpha = 0.5f),
                             fontSize = 8.sp,
@@ -443,7 +443,14 @@ fun createNdefMessage(content: String, type: CreateTagType): ByteArray {
 }
 
 fun createUrlNdefMessage(url: String): ByteArray {
-    val uriRecord = createNdefUriRecord(url)
+    // Ensure URL has protocol
+    val fullUrl = if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        "https://$url"
+    } else {
+        url
+    }
+
+    val uriRecord = createNdefUriRecord(fullUrl)
     val message = ByteArray(2 + uriRecord.size)
     message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
     message[1] = (uriRecord.size and 0xFF).toByte()
@@ -461,20 +468,50 @@ fun createTextNdefMessage(text: String): ByteArray {
 }
 
 fun createPhoneNdefMessage(phone: String): ByteArray {
-    return createUrlNdefMessage("tel:$phone")
+    // Clean phone number from non-digit characters except +
+    val cleanPhone = phone.replace(Regex("[^\\d+]"), "")
+
+    // Create proper tel: URI
+    val telUri = "tel:$cleanPhone"
+    Log.d(TAG, "Creating phone NDEF with URI: $telUri")
+
+    // Use URI record for phone (this will work with tel: scheme)
+    val uriRecord = createNdefUriRecord(telUri)
+    val message = ByteArray(2 + uriRecord.size)
+    message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
+    message[1] = (uriRecord.size and 0xFF).toByte()
+    System.arraycopy(uriRecord, 0, message, 2, uriRecord.size)
+    return message
 }
 
 fun createEmailNdefMessage(email: String): ByteArray {
-    return createUrlNdefMessage("mailto:$email")
+    // Validate email format (basic check)
+    val cleanEmail = email.trim()
+
+    // Create proper mailto: URI
+    val mailtoUri = if (!cleanEmail.startsWith("mailto:")) {
+        "mailto:$cleanEmail"
+    } else {
+        cleanEmail
+    }
+    Log.d(TAG, "Creating email NDEF with URI: $mailtoUri")
+
+    // Use URI record for email (this will work with mailto: scheme)
+    val uriRecord = createNdefUriRecord(mailtoUri)
+    val message = ByteArray(2 + uriRecord.size)
+    message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
+    message[1] = (uriRecord.size and 0xFF).toByte()
+    System.arraycopy(uriRecord, 0, message, 2, uriRecord.size)
+    return message
 }
 
 fun createNdefUriRecord(uri: String): ByteArray {
-    val header: Byte = 0xD1.toByte()
+    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
     val typeLength: Byte = 0x01
     val (uriCode, cleanUri) = getUriCodeAndCleanUrl(uri)
     val uriBytes = cleanUri.toByteArray(Charset.forName("UTF-8"))
     val payloadLength = (uriBytes.size + 1).toByte()
-    val type: Byte = 0x55.toByte()
+    val type: Byte = 0x55.toByte() // 'U'
 
     val record = ByteArray(4 + 1 + uriBytes.size)
     var pos = 0
@@ -489,13 +526,13 @@ fun createNdefUriRecord(uri: String): ByteArray {
 }
 
 fun createNdefTextRecord(text: String): ByteArray {
-    val header: Byte = 0xD1.toByte()
+    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01
     val typeLength: Byte = 0x01
     val languageCode = "en".toByteArray(Charset.forName("US-ASCII"))
     val textBytes = text.toByteArray(Charset.forName("UTF-8"))
-    val statusByte = (languageCode.size and 0x3F).toByte()
+    val statusByte = (languageCode.size and 0x3F).toByte() // Bit 7 = 0 (UTF-8)
     val payloadLength = (1 + languageCode.size + textBytes.size).toByte()
-    val type: Byte = 0x54.toByte()
+    val type: Byte = 0x54.toByte() // 'T'
 
     val record = ByteArray(4 + 1 + languageCode.size + textBytes.size)
     var pos = 0
@@ -516,8 +553,12 @@ fun getUriCodeAndCleanUrl(url: String): Pair<Byte, String> {
         url.startsWith("https://www.") -> Pair(0x02, url.substring(12))
         url.startsWith("http://") -> Pair(0x03, url.substring(7))
         url.startsWith("https://") -> Pair(0x04, url.substring(8))
-        url.startsWith("tel:") -> Pair(0x04, url.substring(4))
-        url.startsWith("mailto:") -> Pair(0x04, url.substring(7))
+        url.startsWith("tel:") -> Pair(0x04, url.substring(4))  // tel: использует код 0x04
+        url.startsWith("mailto:") -> Pair(0x05, url.substring(7))  // mailto: использует код 0x05
+        url.startsWith("ftp://") -> Pair(0x06, url.substring(6))
+        url.startsWith("ftps://") -> Pair(0x0B, url.substring(7))
+        url.startsWith("geo:") -> Pair(0x11, url.substring(4))
+        url.startsWith("sms:") -> Pair(0x12, url.substring(4))
         else -> Pair(0x00, url)
     }
 }

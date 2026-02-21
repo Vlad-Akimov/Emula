@@ -89,6 +89,7 @@ class TagHostApduService : HostApduService() {
                 ndefData = loadNdefData(emulatingUid)
                 if (ndefData != null) {
                     Log.d(TAG, "NDEF data loaded, size: ${ndefData!!.size} bytes")
+                    Log.d(TAG, "NDEF data hex: ${bytesToHex(ndefData!!)}")
                 }
             }
 
@@ -247,7 +248,15 @@ class TagHostApduService : HostApduService() {
 
             if (tag?.ndefMessage != null && tag.ndefMessage!!.isNotEmpty()) {
                 Log.d(TAG, "Using saved NDEF message, type: ${tag.type}")
-                return tag.ndefMessage!!
+
+                // Log the first few bytes to verify format
+                val message = tag.ndefMessage!!
+                if (message.size >= 2) {
+                    val ndefLength = ((message[0].toInt() and 0xFF) shl 8) or (message[1].toInt() and 0xFF)
+                    Log.d(TAG, "NDEF message length field: $ndefLength, actual size: ${message.size}")
+                }
+
+                return message
             }
 
             Log.d(TAG, "Creating default NDEF message")
@@ -313,7 +322,7 @@ class TagHostApduService : HostApduService() {
             url.startsWith("http://") -> Pair(0x03, url.substring(7))
             url.startsWith("https://") -> Pair(0x04, url.substring(8))
             url.startsWith("tel:") -> Pair(0x04, url.substring(4))
-            url.startsWith("mailto:") -> Pair(0x04, url.substring(7))
+            url.startsWith("mailto:") -> Pair(0x05, url.substring(7))
             else -> Pair(0x00, url)
         }
     }
