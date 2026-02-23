@@ -14,6 +14,7 @@ import android.util.Log
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.model.TagType
 import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
 
 class NfcReader(private val context: Context) {
 
@@ -83,6 +84,9 @@ class NfcReader(private val context: Context) {
         // Пытаемся прочитать NDEF данные
         var ndefMessage: ByteArray? = null
         var tagType = TagType.UNKNOWN
+        var contactName: String? = null
+        var contactPhone: String? = null
+        var contactEmail: String? = null
 
         try {
             val ndef = Ndef.get(tag)
@@ -94,7 +98,16 @@ class NfcReader(private val context: Context) {
 
                     // Определяем тип по первой записи
                     if (message.records.isNotEmpty()) {
-                        tagType = detectNdefType(message.records[0])
+                        val firstRecord = message.records[0]
+                        tagType = detectNdefType(firstRecord)
+
+                        // Если это vCard, пытаемся извлечь данные
+                        if (tagType == TagType.NDEF_VCARD) {
+                            val vcardData = parseVCard(firstRecord)
+                            contactName = vcardData.first
+                            contactPhone = vcardData.second
+                            contactEmail = vcardData.third
+                        }
                     }
                 }
                 ndef.close()
@@ -110,7 +123,10 @@ class NfcReader(private val context: Context) {
             type = tagType,
             rawData = tag.id,
             ndefMessage = ndefMessage,
-            techList = techList
+            techList = techList,
+            contactName = contactName,
+            contactPhone = contactPhone,
+            contactEmail = contactEmail
         )
     }
 
@@ -157,6 +173,31 @@ class NfcReader(private val context: Context) {
                 }
             }
             else -> TagType.UNKNOWN
+        }
+    }
+
+    private fun parseVCard(record: NdefRecord): Triple<String?, String?, String?> {
+        try {
+            val payload = record.payload
+            val content = String(payload, Charset.forName("UTF-8"))
+
+            var name: String? = null
+            var phone: String? = null
+            var email: String? = null
+
+            val lines = content.split("\n")
+            for (line in lines) {
+                when {
+                    line.startsWith("FN:") -> name = line.substring(3)
+                    line.startsWith("TEL:") -> phone = line.substring(4)
+                    line.startsWith("EMAIL:") -> email = line.substring(6)
+                }
+            }
+
+            return Triple(name, phone, email)
+        } catch (e: Exception) {
+            Log.e("NfcReader", "Error parsing vCard", e)
+            return Triple(null, null, null)
         }
     }
 }

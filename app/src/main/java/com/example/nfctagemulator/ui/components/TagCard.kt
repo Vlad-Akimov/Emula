@@ -9,12 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nfctagemulator.data.model.TagData
+import com.example.nfctagemulator.data.model.TagType
 import com.example.nfctagemulator.ui.theme.*
 
 @Composable
@@ -79,7 +79,6 @@ fun TagCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-
                     Spacer(modifier = Modifier.width(12.dp))
 
                     // Text info
@@ -97,7 +96,20 @@ fun TagCard(
                             fontFamily = FontFamily.Monospace,
                             fontSize = 12.sp
                         )
-                        // Убираем technology, так как его нет в модели
+                        // Show contact preview if it's a contact
+                        if (tag.type == TagType.NDEF_VCARD) {
+                            Text(
+                                text = buildString {
+                                    tag.contactName?.let { append(it) }
+                                    if (tag.contactPhone != null && tag.contactName != null) append(" • ")
+                                    tag.contactPhone?.let { append(it) }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = NeonPurple,
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
 

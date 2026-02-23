@@ -85,6 +85,11 @@ class TagRepository(context: Context) {
                 jsonObject.put("techList", JSONArray(tag.techList))
             }
 
+            // Сохраняем данные контакта
+            tag.contactName?.let { jsonObject.put("contactName", it) }
+            tag.contactPhone?.let { jsonObject.put("contactPhone", it) }
+            tag.contactEmail?.let { jsonObject.put("contactEmail", it) }
+
             jsonArray.put(jsonObject)
         }
 
@@ -103,7 +108,7 @@ class TagRepository(context: Context) {
                 val uid = jsonObject.optString("uid", "")
                 if (uid.isEmpty()) continue
 
-                val name = jsonObject.optString("name", "Без имени")
+                val name = jsonObject.optString("name", "No name")
                 val timestamp = jsonObject.optLong("timestamp", System.currentTimeMillis())
                 val typeName = jsonObject.optString("type", TagType.UNKNOWN.name)
                 val type = try {
@@ -136,6 +141,11 @@ class TagRepository(context: Context) {
                     }
                 }
 
+                // Читаем данные контакта
+                val contactName = jsonObject.optString("contactName", null)
+                val contactPhone = jsonObject.optString("contactPhone", null)
+                val contactEmail = jsonObject.optString("contactEmail", null)
+
                 tags.add(TagData(
                     uid = uid,
                     name = name,
@@ -143,7 +153,10 @@ class TagRepository(context: Context) {
                     type = type,
                     rawData = rawData,
                     ndefMessage = ndefMessage,
-                    techList = techList
+                    techList = techList,
+                    contactName = contactName,
+                    contactPhone = contactPhone,
+                    contactEmail = contactEmail
                 ))
             }
         } catch (e: Exception) {

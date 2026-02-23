@@ -19,6 +19,9 @@ import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.repository.TagRepository
 import com.example.nfctagemulator.nfc.emulator.TagEmulator
 import com.example.nfctagemulator.ui.components.TagCard
+import com.example.nfctagemulator.ui.theme.NeonCyan
+import com.example.nfctagemulator.ui.theme.SurfaceDark
+import com.example.nfctagemulator.ui.theme.SurfaceGlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,14 +41,23 @@ fun SavedTagsScreen(
     var tagToDelete by remember { mutableStateOf<TagData?>(null) }
 
     Scaffold(
+        containerColor = SurfaceDark,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Мои метки") },
+                title = {
+                    Text(
+                        text = "SAVED TAGS",
+                        color = NeonCyan
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Text("←", fontSize = 20.sp)
+                        Text(text = "←", fontSize = 20.sp, color = NeonCyan)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         }
     ) { paddingValues ->
@@ -63,15 +75,15 @@ fun SavedTagsScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Нет сохраненных меток",
+                        text = "No tags",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.White.copy(alpha = 0.7f)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Поднесите NFC метку к телефону,\nчтобы сохранить её",
+                        text = "Scan a physical NFC tag or create a new one\nto start emulating",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        color = Color.White.copy(alpha = 0.5f),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -89,11 +101,11 @@ fun SavedTagsScreen(
                                 if (selectedTag.uid == emulatingUid) {
                                     emulator.setEmulatingTag(null)
                                     emulatingUid = null
-                                    Toast.makeText(context, "Эмуляция остановлена", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Emulation stopped", Toast.LENGTH_SHORT).show()
                                 } else {
                                     emulator.setEmulatingTag(selectedTag)
                                     emulatingUid = selectedTag.uid
-                                    Toast.makeText(context, "Эмуляция: ${selectedTag.name}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Emulating: ${selectedTag.name}", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             onRenameClick = { tagToRename ->
@@ -112,17 +124,31 @@ fun SavedTagsScreen(
         }
     }
 
-    // Диалог переименования
+    // Rename dialog
     if (showRenameDialog && selectedTagForRename != null) {
         AlertDialog(
             onDismissRequest = { showRenameDialog = false },
-            title = { Text("Переименовать метку") },
+            containerColor = SurfaceGlow,
+            titleContentColor = NeonCyan,
+            textContentColor = Color.White,
+            shape = RoundedCornerShape(24.dp),
+            title = { Text("Rename Tag") },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("Имя метки") },
-                    singleLine = true
+                    label = { Text("Tag name") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = NeonCyan,
+                        unfocusedBorderColor = NeonCyan.copy(alpha = 0.3f),
+                        focusedLabelColor = NeonCyan,
+                        cursorColor = NeonCyan,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             confirmButton = {
@@ -132,28 +158,52 @@ fun SavedTagsScreen(
                             selectedTagForRename?.uid?.let { uid ->
                                 repository.updateTagName(uid, newName)
                                 tags = repository.getAllTags()
+
+                                if (uid == emulatingUid) {
+                                    val updatedTag = tags.find { it.uid == uid }
+                                    updatedTag?.let { emulator.setEmulatingTag(it) }
+                                }
+
+                                showRenameDialog = false
+                                Toast.makeText(context, "Name updated", Toast.LENGTH_SHORT).show()
                             }
-                            showRenameDialog = false
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = NeonCyan
+                    )
                 ) {
-                    Text("Сохранить")
+                    Text("SAVE")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRenameDialog = false }) {
-                    Text("Отмена")
+                TextButton(
+                    onClick = { showRenameDialog = false },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.White.copy(alpha = 0.7f)
+                    )
+                ) {
+                    Text("CANCEL")
                 }
             }
         )
     }
 
-    // Диалог удаления
+    // Delete dialog
     if (showDeleteDialog && tagToDelete != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Удалить метку?") },
-            text = { Text("Вы уверены, что хотите удалить метку \"${tagToDelete?.name}\"?") },
+            containerColor = SurfaceGlow,
+            titleContentColor = Color.Red,
+            textContentColor = Color.White,
+            shape = RoundedCornerShape(24.dp),
+            title = { Text("Delete Tag") },
+            text = {
+                Text(
+                    "Are you sure you want to delete \"${tagToDelete?.name}\"?",
+                    color = Color.White.copy(alpha = 0.7f)
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -165,20 +215,26 @@ fun SavedTagsScreen(
                                 emulator.setEmulatingTag(null)
                                 emulatingUid = null
                             }
+
+                            showDeleteDialog = false
+                            Toast.makeText(context, "Tag deleted", Toast.LENGTH_SHORT).show()
                         }
-                        showDeleteDialog = false
-                        Toast.makeText(context, "Метка удалена", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
+                        contentColor = Color.Red
                     )
                 ) {
-                    Text("Удалить")
+                    Text("DELETE")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Отмена")
+                TextButton(
+                    onClick = { showDeleteDialog = false },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = Color.White.copy(alpha = 0.7f)
+                    )
+                ) {
+                    Text("CANCEL")
                 }
             }
         )

@@ -2,7 +2,6 @@ package com.example.nfctagemulator.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,14 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -239,20 +235,24 @@ fun EmulatorMainScreen(
                         }
                     }
 
-                    // Scan button only
-                    Button(
-                        onClick = onScanClick,
-                        enabled = !isEmulating,
-                        modifier = Modifier
-                            .height(40.dp)
-                            .width(100.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonCyan.copy(alpha = 0.2f),
-                            contentColor = NeonCyan
-                        )
-                    ) {
-                        Text("SCAN", fontSize = 12.sp)
+                    // Scan and Create buttons
+                    Row {
+                        Button(
+                            onClick = onScanClick,
+                            enabled = !isEmulating,
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(120.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = NeonCyan.copy(alpha = 0.2f),
+                                contentColor = NeonCyan
+                            )
+                        ) {
+                            Text("SCAN", fontSize = 10.sp)
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
             }
@@ -433,7 +433,7 @@ fun EmptyState(
                         text = if (isEmulating)
                             "Your device is acting as an NFC tag.\nBring another device close to read it."
                         else
-                            "Scan a physical tag to get started",
+                            "Scan a physical tag or create a new one to get started",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
@@ -444,17 +444,34 @@ fun EmptyState(
             Spacer(modifier = Modifier.height(32.dp))
 
             if (!isEmulating) {
-                Button(
-                    onClick = onScanClick,
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = NeonCyan
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text("SCAN", color = Color.Black)
+                    Button(
+                        onClick = onScanClick,
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonCyan
+                        )
+                    ) {
+                        Text("SCAN", color = Color.Black)
+                    }
+
+                    Button(
+                        onClick = { /* Navigate to create screen handled by parent */ },
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NeonGreen
+                        )
+                    ) {
+                        Text("CREATE", color = Color.Black)
+                    }
                 }
             }
         }

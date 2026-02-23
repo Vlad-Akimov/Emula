@@ -3,6 +3,8 @@ package com.example.nfctagemulator.nfc.emulator
 import android.nfc.cardemulation.HostApduService
 import android.os.Bundle
 import android.util.Log
+import com.example.nfctagemulator.data.model.TagData
+import com.example.nfctagemulator.data.model.TagType
 import com.example.nfctagemulator.data.repository.TagRepository
 import java.nio.charset.Charset
 
@@ -260,15 +262,21 @@ class TagHostApduService : HostApduService() {
             }
 
             Log.d(TAG, "Creating default NDEF message")
-            createDefaultNdefMessage(uid)
+            createDefaultNdefMessage(uid, tag)
 
         } catch (e: Exception) {
             Log.e(TAG, "Error loading NDEF data", e)
-            createDefaultNdefMessage(uid)
+            createDefaultNdefMessage(uid, null)
         }
     }
 
-    private fun createDefaultNdefMessage(uid: String): ByteArray {
+    private fun createDefaultNdefMessage(uid: String, tag: TagData?): ByteArray {
+        // If it's a contact tag with data, create vCard
+        if (tag?.type == TagType.NDEF_VCARD &&
+            (tag.contactName != null || tag.contactPhone != null || tag.contactEmail != null)) {
+            return createVCardNdefMessage(tag)
+        }
+
         // Create a proper NDEF message with a URL
         val url = "https://example.com/tag/$uid"
 
@@ -280,6 +288,29 @@ class TagHostApduService : HostApduService() {
         message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
         message[1] = (uriRecord.size and 0xFF).toByte()
         System.arraycopy(uriRecord, 0, message, 2, uriRecord.size)
+
+        return message
+    }
+
+    private fun createVCardNdefMessage(tag: TagData): ByteArray {
+        // Create vCard data
+        val vcard = buildString {
+            append("BEGIN:VCARD\n")
+            append("VERSION:3.0\n")
+            tag.contactName?.let { append("FN:$it\n") }
+            tag.contactPhone?.let { append("TEL:$it\n") }
+            tag.contactEmail?.let { append("EMAIL:$it\n") }
+            append("END:VCARD")
+        }
+
+        // Create MIME record for vCard
+        val mimeRecord = createNdefMimeRecord("text/vcard", vcard)
+
+        // Wrap with NLEN (2 bytes length)
+        val message = ByteArray(2 + mimeRecord.size)
+        message[0] = ((mimeRecord.size shr 8) and 0xFF).toByte()
+        message[1] = (mimeRecord.size and 0xFF).toByte()
+        System.arraycopy(mimeRecord, 0, message, 2, mimeRecord.size)
 
         return message
     }
@@ -311,6 +342,27 @@ class TagHostApduService : HostApduService() {
         record[pos++] = type
         record[pos++] = uriCode
         urlBytes.forEach { record[pos++] = it }
+
+        return record
+    }
+
+    private fun createNdefMimeRecord(mimeType: String, content: String): ByteArray {
+        // Header: MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x02 (MIME media type)
+        val header: Byte = 0xD2.toByte()
+
+        val typeBytes = mimeType.toByteArray(Charset.forName("US-ASCII"))
+        val contentBytes = content.toByteArray(Charset.forName("UTF-8"))
+
+        val typeLength = typeBytes.size.toByte()
+        val payloadLength = contentBytes.size.toByte()
+
+        val record = ByteArray(3 + typeBytes.size + contentBytes.size)
+        var pos = 0
+        record[pos++] = header
+        record[pos++] = typeLength
+        record[pos++] = payloadLength
+        typeBytes.forEach { record[pos++] = it }
+        contentBytes.forEach { record[pos++] = it }
 
         return record
     }

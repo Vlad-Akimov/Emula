@@ -11,7 +11,11 @@ data class TagData(
     val type: TagType = TagType.UNKNOWN,
     val rawData: ByteArray? = null,
     val ndefMessage: ByteArray? = null,
-    val techList: List<String> = emptyList()
+    val techList: List<String> = emptyList(),
+    // Дополнительные поля для контакта
+    val contactName: String? = null,
+    val contactPhone: String? = null,
+    val contactEmail: String? = null
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -21,7 +25,10 @@ data class TagData(
         TagType.valueOf(parcel.readString() ?: TagType.UNKNOWN.name),
         parcel.readInt().takeIf { it >= 0 }?.let { parcel.createByteArray() },
         parcel.readInt().takeIf { it >= 0 }?.let { parcel.createByteArray() },
-        parcel.createStringArrayList() ?: emptyList()
+        parcel.createStringArrayList() ?: emptyList(),
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -47,6 +54,9 @@ data class TagData(
         }
 
         parcel.writeStringList(techList)
+        parcel.writeString(contactName)
+        parcel.writeString(contactPhone)
+        parcel.writeString(contactEmail)
     }
 
     override fun describeContents(): Int = 0
@@ -64,6 +74,9 @@ data class TagData(
         if (!Arrays.equals(rawData, other.rawData)) return false
         if (!Arrays.equals(ndefMessage, other.ndefMessage)) return false
         if (techList != other.techList) return false
+        if (contactName != other.contactName) return false
+        if (contactPhone != other.contactPhone) return false
+        if (contactEmail != other.contactEmail) return false
 
         return true
     }
@@ -76,6 +89,9 @@ data class TagData(
         result = 31 * result + (rawData?.let { Arrays.hashCode(it) } ?: 0)
         result = 31 * result + (ndefMessage?.let { Arrays.hashCode(it) } ?: 0)
         result = 31 * result + techList.hashCode()
+        result = 31 * result + (contactName?.hashCode() ?: 0)
+        result = 31 * result + (contactPhone?.hashCode() ?: 0)
+        result = 31 * result + (contactEmail?.hashCode() ?: 0)
         return result
     }
 
