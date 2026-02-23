@@ -1,1 +1,73 @@
-/build
+# Created by https://www.toptal.com/developers/gitignore/api/android
+# Edit at https://www.toptal.com/developers/gitignore?templates=android
+
+### Android ###
+# Gradle files
+.gradle/
+build/
+*/build/
+app/build/
+local.properties
+*.iml
+*.log
+*.kotlin_module
+
+# Android Studio
+.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/gradle.xml
+.idea/**/assetWizardSettings.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/external_build_system
+.idea/caches/
+.idea/jarRepositories.xml
+.idea/modules.xml
+.idea/compiler.xml
+.idea/libraries/
+.idea/.name
+.idea/runConfigurations.xml
+.idea/misc.xml
+*.ipr
+*.iws
+
+# Keystore files
+*.jks
+*.keystore
+keystore.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NDK
+.externalNativeBuild
+.cxx/
+
+# Build artifacts
+captures/
+output.json
+
+# Crashlytics
+com_crashlytics_export_strings.xml
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
+
+# VCS
+.git/
+.gitignore
+
+# Generated files
+**/generated/
+**/R.java
+
+# Secrets
+google-services.json
+app/src/main/res/values/secrets.xml
+app/src/main/assets/config.json

@@ -37,6 +37,24 @@ android {
     buildFeatures {
         compose = true
     }
+    buildTypes {
+        release {
+            isMinifyEnabled = true      // Включаем обфускацию
+            isShrinkResources = true     // Удаляем неиспользуемые ресурсы
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
+        debug {
+            isMinifyEnabled = false      // Для отладки обфускация не нужна
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
 }
 
 dependencies {
