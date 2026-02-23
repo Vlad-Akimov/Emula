@@ -87,6 +87,8 @@ class NfcReader(private val context: Context) {
         var contactName: String? = null
         var contactPhone: String? = null
         var contactEmail: String? = null
+        var isPhoneNumber = false
+        var phoneNumber: String? = null
 
         try {
             val ndef = Ndef.get(tag)
@@ -101,12 +103,28 @@ class NfcReader(private val context: Context) {
                         val firstRecord = message.records[0]
                         tagType = detectNdefType(firstRecord)
 
+                        // Проверяем, является ли это телефонным номером
+                        if (tagType == TagType.NDEF_URI) {
+                            val uriInfo = extractUriFromRecord(firstRecord)
+                            if (uriInfo.first == "tel") {
+                                isPhoneNumber = true
+                                phoneNumber = uriInfo.second
+                                tagType = TagType.NDEF_URI // Оставляем тип как URI, но помечаем как телефон
+                            }
+                        }
+
                         // Если это vCard, пытаемся извлечь данные
                         if (tagType == TagType.NDEF_VCARD) {
                             val vcardData = parseVCard(firstRecord)
                             contactName = vcardData.first
                             contactPhone = vcardData.second
                             contactEmail = vcardData.third
+
+                            // Если есть телефон в vCard, помечаем
+                            if (!contactPhone.isNullOrBlank()) {
+                                isPhoneNumber = true
+                                phoneNumber = contactPhone
+                            }
                         }
                     }
                 }
@@ -116,7 +134,7 @@ class NfcReader(private val context: Context) {
             Log.e("NfcReader", "NDEF reading error", e)
         }
 
-        Log.d("NfcReader", "The label has been read: $uid, type: $tagType")
+        Log.d("NfcReader", "The label has been read: $uid, type: $tagType, isPhone: $isPhoneNumber")
 
         return TagData(
             uid = uid,
@@ -173,6 +191,54 @@ class NfcReader(private val context: Context) {
                 }
             }
             else -> TagType.UNKNOWN
+        }
+    }
+
+    private fun extractUriFromRecord(record: NdefRecord): Pair<String, String> {
+        try {
+            val payload = record.payload
+            if (payload.size < 2) return Pair("", "")
+
+            val uriCode = payload[0].toInt() and 0xFF
+            val uriBody = String(payload.copyOfRange(1, payload.size), Charset.forName("UTF-8"))
+
+            val uriPrefix = when (uriCode) {
+                0x00 -> ""
+                0x01 -> "http://www."
+                0x02 -> "https://www."
+                0x03 -> "http://"
+                0x04 -> "https://"
+                0x05 -> "tel:"
+                0x06 -> "mailto:"
+                0x07 -> "ftp://"
+                0x08 -> "ftps://"
+                0x09 -> "geo:"
+                0x10 -> "sms:"
+                else -> ""
+            }
+
+            val fullUri = uriPrefix + uriBody
+
+            // Определяем схему
+            val scheme = when {
+                fullUri.startsWith("tel:") -> "tel"
+                fullUri.startsWith("mailto:") -> "mailto"
+                fullUri.startsWith("http:") -> "http"
+                fullUri.startsWith("https:") -> "https"
+                else -> ""
+            }
+
+            // Извлекаем значение (без схемы)
+            val value = when {
+                fullUri.startsWith("tel:") -> fullUri.substring(4)
+                fullUri.startsWith("mailto:") -> fullUri.substring(7)
+                else -> fullUri
+            }
+
+            return Pair(scheme, value)
+        } catch (e: Exception) {
+            Log.e("NfcReader", "Error extracting URI", e)
+            return Pair("", "")
         }
     }
 

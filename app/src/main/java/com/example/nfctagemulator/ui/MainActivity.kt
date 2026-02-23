@@ -459,19 +459,6 @@ fun EmptyState(
                     ) {
                         Text("SCAN", color = Color.Black)
                     }
-
-                    Button(
-                        onClick = { /* Navigate to create screen handled by parent */ },
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonGreen
-                        )
-                    ) {
-                        Text("CREATE", color = Color.Black)
-                    }
                 }
             }
         }

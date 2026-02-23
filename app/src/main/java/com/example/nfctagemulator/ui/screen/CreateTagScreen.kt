@@ -584,12 +584,34 @@ fun createPhoneNdefMessage(phone: String): ByteArray {
     val telUri = "tel:$cleanPhone"
     Log.d(TAG, "Creating phone NDEF with URI: $telUri")
 
-    // Use URI record for phone (this will work with tel: scheme)
-    val uriRecord = createNdefUriRecord(telUri)
-    val message = ByteArray(2 + uriRecord.size)
-    message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
-    message[1] = (uriRecord.size and 0xFF).toByte()
-    System.arraycopy(uriRecord, 0, message, 2, uriRecord.size)
+    // Create a proper NDEF record for tel URI
+    // Using TNF_WELL_KNOWN with type "U" for URI
+    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
+    val typeLength: Byte = 0x01
+    val type: Byte = 0x55.toByte() // 'U'
+
+    // For tel: scheme, we use URI code 0x05
+    val uriCode: Byte = 0x05
+    val cleanUri = telUri.substring(4) // Remove "tel:" prefix
+    val uriBytes = cleanUri.toByteArray(Charset.forName("UTF-8"))
+
+    val payloadLength = (uriBytes.size + 1).toByte()
+
+    val record = ByteArray(4 + 1 + uriBytes.size)
+    var pos = 0
+    record[pos++] = header
+    record[pos++] = typeLength
+    record[pos++] = payloadLength
+    record[pos++] = type
+    record[pos++] = uriCode
+    uriBytes.forEach { record[pos++] = it }
+
+    // Wrap with NLEN (2 bytes length)
+    val message = ByteArray(2 + record.size)
+    message[0] = ((record.size shr 8) and 0xFF).toByte()
+    message[1] = (record.size and 0xFF).toByte()
+    System.arraycopy(record, 0, message, 2, record.size)
+
     return message
 }
 
