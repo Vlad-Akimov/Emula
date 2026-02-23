@@ -553,8 +553,8 @@ fun getUriCodeAndCleanUrl(url: String): Pair<Byte, String> {
         url.startsWith("https://www.") -> Pair(0x02, url.substring(12))
         url.startsWith("http://") -> Pair(0x03, url.substring(7))
         url.startsWith("https://") -> Pair(0x04, url.substring(8))
-        url.startsWith("tel:") -> Pair(0x04, url.substring(4))  // tel: использует код 0x04
-        url.startsWith("mailto:") -> Pair(0x05, url.substring(7))  // mailto: использует код 0x05
+        url.startsWith("tel:") -> Pair(0x05, url.substring(4))  // tel: использует код 0x04
+        url.startsWith("mailto:") -> Pair(0x06, url.substring(7))  // mailto: использует код 0x05
         url.startsWith("ftp://") -> Pair(0x06, url.substring(6))
         url.startsWith("ftps://") -> Pair(0x0B, url.substring(7))
         url.startsWith("geo:") -> Pair(0x11, url.substring(4))

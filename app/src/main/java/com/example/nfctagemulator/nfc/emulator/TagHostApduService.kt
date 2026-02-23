@@ -321,8 +321,8 @@ class TagHostApduService : HostApduService() {
             url.startsWith("https://www.") -> Pair(0x02, url.substring(12))
             url.startsWith("http://") -> Pair(0x03, url.substring(7))
             url.startsWith("https://") -> Pair(0x04, url.substring(8))
-            url.startsWith("tel:") -> Pair(0x04, url.substring(4))
-            url.startsWith("mailto:") -> Pair(0x05, url.substring(7))
+            url.startsWith("tel:") -> Pair(0x05, url.substring(4))
+            url.startsWith("mailto:") -> Pair(0x06, url.substring(7))
             else -> Pair(0x00, url)
         }
     }
