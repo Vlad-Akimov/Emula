@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/service_description"
+    android:requireDeviceUnlock="false">
+
+    <!-- Using "other" category to avoid conflicts with payment apps -->
+    <aid-group
+        android:description="@string/aid_group_description"
+        android:category="other">
+
+        <!-- Standard NDEF Type 4 Tag AID (NFC Forum) - Main -->
+        <aid-filter android:name="D2760000850101"/>
+
+        <!-- Alternative NDEF AIDs for better compatibility -->
+        <aid-filter android:name="D2760000850100"/>
+        <aid-filter android:name="D2760000850102"/>
+        <aid-filter android:name="D2760000850110"/>
+
+        <!-- Generic NDEF AID for broader compatibility -->
+        <aid-filter android:name="F0010203040506"/>
+
+    </aid-group>
+
+</host-apdu-service>

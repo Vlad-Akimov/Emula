@@ -1,0 +1,194 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.nfctagemulator"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="36" />
+10
+11    <!-- NFC permission -->
+12    <uses-permission android:name="android.permission.NFC" />
+12-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:6:5-62
+12-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:6:22-59
+13
+14    <!-- Require NFC -->
+15    <uses-feature
+15-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:9:5-11:35
+16        android:name="android.hardware.nfc"
+16-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:10:9-44
+17        android:required="true" />
+17-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:11:9-32
+18
+19    <permission
+19-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
+20        android:name="com.example.nfctagemulator.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="com.example.nfctagemulator.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+23-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
+24
+25    <application
+25-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:13:5-65:19
+26        android:allowBackup="true"
+26-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:14:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.17.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
+28        android:dataExtractionRules="@xml/data_extraction_rules"
+28-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:15:9-65
+29        android:extractNativeLibs="false"
+30        android:fullBackupContent="@xml/backup_rules"
+30-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:16:9-54
+31        android:icon="@mipmap/ic_launcher"
+31-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:17:9-43
+32        android:label="@string/app_name"
+32-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:18:9-41
+33        android:roundIcon="@mipmap/ic_launcher_round"
+33-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:19:9-54
+34        android:supportsRtl="true"
+34-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:20:9-35
+35        android:theme="@style/Theme.NfcTagEmulator" >
+35-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:21:9-52
+36
+37        <!-- Main Activity -->
+38        <activity
+38-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:24:9-46:20
+39            android:name="com.example.nfctagemulator.ui.MainActivity"
+39-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:25:13-44
+40            android:exported="true"
+40-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:26:13-36
+41            android:label="@string/app_name"
+41-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:27:13-45
+42            android:launchMode="singleTop"
+42-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:28:13-43
+43            android:theme="@style/Theme.NfcTagEmulator" >
+43-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:29:13-56
+44            <intent-filter>
+44-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:31:13-34:29
+45                <action android:name="android.intent.action.MAIN" />
+45-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:32:17-69
+45-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:32:25-66
+46
+47                <category android:name="android.intent.category.LAUNCHER" />
+47-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:33:17-77
+47-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:33:27-74
+48            </intent-filter>
+49
+50            <!-- Filter for NFC tag discovery -->
+51            <intent-filter>
+51-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:37:13-40:29
+52                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+52-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:38:17-76
+52-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:38:25-73
+53
+54                <category android:name="android.intent.category.DEFAULT" />
+54-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:39:17-76
+54-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:39:27-73
+55            </intent-filter>
+56
+57            <meta-data
+57-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:42:13-44:59
+58                android:name="android.nfc.action.TECH_DISCOVERED"
+58-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:43:17-66
+59                android:resource="@xml/nfc_tech_filter" />
+59-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:44:17-56
+60        </activity>
+61
+62        <!-- HCE Service for NFC tag emulation -->
+63        <service
+63-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:49:9-63:19
+64            android:name="com.example.nfctagemulator.nfc.emulator.TagHostApduService"
+64-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:50:13-60
+65            android:enabled="true"
+65-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:53:13-35
+66            android:exported="true"
+66-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:51:13-36
+67            android:permission="android.permission.BIND_NFC_SERVICE" >
+67-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:52:13-69
+68            <intent-filter>
+68-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:55:13-57:29
+69                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+69-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:56:17-93
+69-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:56:25-90
+70            </intent-filter>
+71
+72            <meta-data
+72-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:59:13-61:55
+73                android:name="android.nfc.cardemulation.host_apdu_service"
+73-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:60:17-75
+74                android:resource="@xml/apduservice" />
+74-->D:\Projects\NfcTagEmulator\app\src\main\AndroidManifest.xml:61:17-52
+75        </service>
+76
+77        <provider
+77-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+78            android:name="androidx.startup.InitializationProvider"
+78-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
+79            android:authorities="com.example.nfctagemulator.androidx-startup"
+79-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
+80            android:exported="false" >
+80-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
+81            <meta-data
+81-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+82                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+82-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
+83                android:value="androidx.startup" />
+83-->[androidx.emoji2:emoji2:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\af754afe7fe4330de5ecdb1b976d210e\workspace\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
+84            <meta-data
+84-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\81f5eb0071c1b4c7164b23dc2ca7f8de\workspace\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:29:13-31:52
+85                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+85-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\81f5eb0071c1b4c7164b23dc2ca7f8de\workspace\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:30:17-78
+86                android:value="androidx.startup" />
+86-->[androidx.lifecycle:lifecycle-process:2.10.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\81f5eb0071c1b4c7164b23dc2ca7f8de\workspace\transformed\lifecycle-process-2.10.0\AndroidManifest.xml:31:17-49
+87            <meta-data
+87-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+88                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+88-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+89                android:value="androidx.startup" />
+89-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+90        </provider>
+91
+92        <receiver
+92-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+93            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+93-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+94            android:directBootAware="false"
+94-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+95            android:enabled="true"
+95-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+96            android:exported="true"
+96-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+97            android:permission="android.permission.DUMP" >
+97-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+98            <intent-filter>
+98-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+99                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+99-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+99-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+100            </intent-filter>
+101            <intent-filter>
+101-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+102                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+102-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+102-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+103            </intent-filter>
+104            <intent-filter>
+104-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+105                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+105-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+105-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+106            </intent-filter>
+107            <intent-filter>
+107-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+108                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+108-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+108-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\vladl\.gradle\caches\9.2.1\transforms\51e7e9c614bcc14b6b64e2264f068e02\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+109            </intent-filter>
+110        </receiver>
+111    </application>
+112
+113</manifest>

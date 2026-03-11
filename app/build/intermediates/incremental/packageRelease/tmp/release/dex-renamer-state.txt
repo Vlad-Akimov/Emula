@@ -1,0 +1,4 @@
+#Mon Feb 23 19:28:04 MSK 2026
+base.0=D\:\\Projects\\NfcTagEmulator\\app\\build\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
