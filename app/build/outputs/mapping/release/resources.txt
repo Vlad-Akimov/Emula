@@ -1,105 +1,105 @@
-string:app_name:2131296258 reachable from AndroidManifest.xml
-string:not_selected:2131296332 reachable from Field int androidx.compose.ui.R$string.not_selected
-xml:nfc_tech_filter:2131492867 reachable from AndroidManifest.xml
-id:accessibility_custom_action_11:2131034116 reachable from Field int androidx.core.R$id.accessibility_custom_action_11
+string:selected:2131296335 reachable from Field int androidx.compose.ui.R$string.selected
 xml:data_extraction_rules:2131492866 reachable from AndroidManifest.xml
-id:accessibility_custom_action_12:2131034117 reachable from Field int androidx.core.R$id.accessibility_custom_action_12
-id:view_tree_disjoint_parent:2131034197 reachable from Field int androidx.core.viewtree.R$id.view_tree_disjoint_parent
-id:accessibility_custom_action_10:2131034115 reachable from Field int androidx.core.R$id.accessibility_custom_action_10
-attr:fontVariationSettings:2130771979 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
-id:androidx_compose_ui_view_composition_context:2131034150 reachable from Field int androidx.compose.ui.R$id.androidx_compose_ui_view_composition_context
-xml:backup_rules:2131492865 reachable from AndroidManifest.xml
-id:tag_unhandled_key_event_manager:2131034190 reachable from Field int androidx.core.R$id.tag_unhandled_key_event_manager
-id:view_tree_navigation_event_dispatcher_owner:2131034199 reachable from Field int androidx.navigationevent.R$id.view_tree_navigation_event_dispatcher_owner
-id:tag_accessibility_actions:2131034178 reachable from Field int androidx.core.R$id.tag_accessibility_actions
+attr:fontProviderFetchTimeout:2130771974 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:tag_screen_reader_focusable:2131034186 reachable from Field int androidx.core.R$id.tag_screen_reader_focusable
+string:androidx_startup:2131296257 reachable from Field int androidx.startup.R$string.androidx_startup
+string:aid_group_description:2131296256 reachable from res/xml/apduservice.xml
 mipmap:ic_launcher_foreground:2131230721 reachable from res/mipmap-anydpi-v26/ic_launcher.xml
-style:Theme_NfcTagEmulator:2131361801 reachable from AndroidManifest.xml
-string:default_error_message:2131296269 reachable from Field int androidx.compose.ui.R$string.default_error_message
-id:consume_window_insets_tag:2131034155 reachable from Field int androidx.compose.ui.R$id.consume_window_insets_tag
-id:view_tree_saved_state_registry_owner:2131034201 reachable from Field int androidx.savedstate.R$id.view_tree_saved_state_registry_owner
-id:accessibility_custom_action_2:2131034125 reachable from Field int androidx.core.R$id.accessibility_custom_action_2
-id:accessibility_custom_action_3:2131034136 reachable from Field int androidx.core.R$id.accessibility_custom_action_3
+id:view_tree_on_back_pressed_dispatcher_owner:2131034200 reachable from Field int androidx.activity.R$id.view_tree_on_back_pressed_dispatcher_owner
+id:accessibility_custom_action_31:2131034138 reachable from Field int androidx.core.R$id.accessibility_custom_action_31
+id:accessibility_custom_action_30:2131034137 reachable from Field int androidx.core.R$id.accessibility_custom_action_30
+id:accessibility_custom_action_8:2131034143 reachable from Field int androidx.core.R$id.accessibility_custom_action_8
+attr:fontProviderAuthority:2130771970 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:accessibility_custom_action_9:2131034144 reachable from Field int androidx.core.R$id.accessibility_custom_action_9
+id:view_tree_lifecycle_owner:2131034198 reachable from Field int androidx.lifecycle.runtime.R$id.view_tree_lifecycle_owner
 id:accessibility_custom_action_4:2131034139 reachable from Field int androidx.core.R$id.accessibility_custom_action_4
-id:hide_in_inspector_tag:2131034161 reachable from Field int androidx.compose.ui.R$id.hide_in_inspector_tag
-string:state_off:2131296339 reachable from Field int androidx.compose.ui.R$string.state_off
+id:inspection_slot_table_set:2131034165 reachable from Field int androidx.compose.ui.R$id.inspection_slot_table_set
 id:accessibility_custom_action_5:2131034140 reachable from Field int androidx.core.R$id.accessibility_custom_action_5
 id:accessibility_custom_action_6:2131034141 reachable from Field int androidx.core.R$id.accessibility_custom_action_6
 id:accessibility_custom_action_7:2131034142 reachable from Field int androidx.core.R$id.accessibility_custom_action_7
-id:accessibility_custom_action_8:2131034143 reachable from Field int androidx.core.R$id.accessibility_custom_action_8
+attr:fontWeight:2130771980 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
+string:switch_role:2131296342 reachable from Field int androidx.compose.ui.R$string.switch_role
+xml:nfc_tech_filter:2131492867 reachable from AndroidManifest.xml
+id:report_drawn:2131034175 reachable from Field int androidx.activity.R$id.report_drawn
+drawable:ic_launcher_background:2130968583 reachable from res/mipmap-anydpi-v26/ic_launcher.xml
+attr:fontProviderPackage:2130771975 reachable from Field int[] androidx.core.R$styleable.FontFamily
+style:Theme_NfcTagEmulator:2131361801 reachable from AndroidManifest.xml
 string:tab:2131296343 reachable from Field int androidx.compose.ui.R$string.tab
-id:accessibility_custom_action_9:2131034144 reachable from Field int androidx.core.R$id.accessibility_custom_action_9
-id:view_tree_lifecycle_owner:2131034198 reachable from Field int androidx.lifecycle.runtime.R$id.view_tree_lifecycle_owner
-id:accessibility_custom_action_30:2131034137 reachable from Field int androidx.core.R$id.accessibility_custom_action_30
-string:androidx_startup:2131296257 reachable from Field int androidx.startup.R$string.androidx_startup
-string:template_percent:2131296344 reachable from Field int androidx.compose.ui.R$string.template_percent
-string:selected:2131296335 reachable from Field int androidx.compose.ui.R$string.selected
-mipmap:ic_launcher_round:2131230722 reachable from AndroidManifest.xml
+string:service_description:2131296336 reachable from res/xml/apduservice.xml
+attr:fontProviderFallbackQuery:2130771972 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:compose_view_saveable_id_tag:2131034154 reachable from Field int androidx.compose.ui.R$id.compose_view_saveable_id_tag
+attr:fontProviderFetchStrategy:2130771973 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:view_tree_saved_state_registry_owner:2131034201 reachable from Field int androidx.savedstate.R$id.view_tree_saved_state_registry_owner
+id:accessibility_custom_action_19:2131034124 reachable from Field int androidx.core.R$id.accessibility_custom_action_19
+attr:fontVariationSettings:2130771979 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
+id:accessibility_custom_action_17:2131034122 reachable from Field int androidx.core.R$id.accessibility_custom_action_17
+id:accessibility_custom_action_18:2131034123 reachable from Field int androidx.core.R$id.accessibility_custom_action_18
+id:accessibility_custom_action_15:2131034120 reachable from Field int androidx.core.R$id.accessibility_custom_action_15
+id:accessibility_custom_action_16:2131034121 reachable from Field int androidx.core.R$id.accessibility_custom_action_16
 id:accessibility_custom_action_0:2131034113 reachable from Field int androidx.core.R$id.accessibility_custom_action_0
-id:accessibility_custom_action_31:2131034138 reachable from Field int androidx.core.R$id.accessibility_custom_action_31
+id:accessibility_custom_action_13:2131034118 reachable from Field int androidx.core.R$id.accessibility_custom_action_13
 id:accessibility_custom_action_1:2131034114 reachable from Field int androidx.core.R$id.accessibility_custom_action_1
+id:accessibility_custom_action_14:2131034119 reachable from Field int androidx.core.R$id.accessibility_custom_action_14
+id:androidx_compose_ui_view_composition_context:2131034150 reachable from Field int androidx.compose.ui.R$id.androidx_compose_ui_view_composition_context
+string:not_selected:2131296332 reachable from Field int androidx.compose.ui.R$string.not_selected
+id:accessibility_custom_action_2:2131034125 reachable from Field int androidx.core.R$id.accessibility_custom_action_2
+id:accessibility_custom_action_11:2131034116 reachable from Field int androidx.core.R$id.accessibility_custom_action_11
+id:accessibility_custom_action_3:2131034136 reachable from Field int androidx.core.R$id.accessibility_custom_action_3
+id:accessibility_custom_action_12:2131034117 reachable from Field int androidx.core.R$id.accessibility_custom_action_12
+style:FloatingDialogWindowTheme:2131361795 reachable from Field int androidx.compose.ui.R$style.FloatingDialogWindowTheme
+id:accessibility_custom_action_10:2131034115 reachable from Field int androidx.core.R$id.accessibility_custom_action_10
+attr:fontProviderSystemFontFamily:2130771977 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:tag_unhandled_key_listeners:2131034191 reachable from Field int androidx.core.R$id.tag_unhandled_key_listeners
+string:state_on:2131296340 reachable from Field int androidx.compose.ui.R$string.state_on
+id:is_pooling_container_tag:2131034166 reachable from Field int androidx.customview.poolingcontainer.R$id.is_pooling_container_tag
+id:accessibility_custom_action_28:2131034134 reachable from Field int androidx.core.R$id.accessibility_custom_action_28
+id:wrapped_composition_tag:2131034203 reachable from Field int androidx.compose.ui.R$id.wrapped_composition_tag
+string:state_empty:2131296338 reachable from Field int androidx.compose.ui.R$string.state_empty
+id:accessibility_custom_action_29:2131034135 reachable from Field int androidx.core.R$id.accessibility_custom_action_29
 id:accessibility_custom_action_26:2131034132 reachable from Field int androidx.core.R$id.accessibility_custom_action_26
 id:accessibility_custom_action_27:2131034133 reachable from Field int androidx.core.R$id.accessibility_custom_action_27
 id:accessibility_custom_action_24:2131034130 reachable from Field int androidx.core.R$id.accessibility_custom_action_24
 id:accessibility_custom_action_25:2131034131 reachable from Field int androidx.core.R$id.accessibility_custom_action_25
-attr:fontProviderFetchTimeout:2130771974 reachable from Field int[] androidx.core.R$styleable.FontFamily
-id:accessibility_custom_action_28:2131034134 reachable from Field int androidx.core.R$id.accessibility_custom_action_28
-id:tag_unhandled_key_listeners:2131034191 reachable from Field int androidx.core.R$id.tag_unhandled_key_listeners
-id:accessibility_custom_action_29:2131034135 reachable from Field int androidx.core.R$id.accessibility_custom_action_29
-id:view_tree_view_model_store_owner:2131034202 reachable from Field int androidx.lifecycle.viewmodel.R$id.view_tree_view_model_store_owner
-id:compose_view_saveable_id_tag:2131034154 reachable from Field int androidx.compose.ui.R$id.compose_view_saveable_id_tag
-id:report_drawn:2131034175 reachable from Field int androidx.activity.R$id.report_drawn
-string:state_empty:2131296338 reachable from Field int androidx.compose.ui.R$string.state_empty
-attr:fontProviderPackage:2130771975 reachable from Field int[] androidx.core.R$styleable.FontFamily
-attr:fontProviderFetchStrategy:2130771973 reachable from Field int[] androidx.core.R$styleable.FontFamily
 id:accessibility_custom_action_22:2131034128 reachable from Field int androidx.core.R$id.accessibility_custom_action_22
 id:accessibility_custom_action_23:2131034129 reachable from Field int androidx.core.R$id.accessibility_custom_action_23
-id:view_tree_on_back_pressed_dispatcher_owner:2131034200 reachable from Field int androidx.activity.R$id.view_tree_on_back_pressed_dispatcher_owner
 id:accessibility_custom_action_20:2131034126 reachable from Field int androidx.core.R$id.accessibility_custom_action_20
+xml:backup_rules:2131492865 reachable from AndroidManifest.xml
 id:accessibility_custom_action_21:2131034127 reachable from Field int androidx.core.R$id.accessibility_custom_action_21
-id:accessibility_custom_action_15:2131034120 reachable from Field int androidx.core.R$id.accessibility_custom_action_15
-id:accessibility_custom_action_16:2131034121 reachable from Field int androidx.core.R$id.accessibility_custom_action_16
-attr:fontWeight:2130771980 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
-id:accessibility_custom_action_13:2131034118 reachable from Field int androidx.core.R$id.accessibility_custom_action_13
-id:accessibility_custom_action_14:2131034119 reachable from Field int androidx.core.R$id.accessibility_custom_action_14
-id:accessibility_custom_action_19:2131034124 reachable from Field int androidx.core.R$id.accessibility_custom_action_19
-id:accessibility_custom_action_17:2131034122 reachable from Field int androidx.core.R$id.accessibility_custom_action_17
-id:wrapped_composition_tag:2131034203 reachable from Field int androidx.compose.ui.R$id.wrapped_composition_tag
-id:tag_screen_reader_focusable:2131034186 reachable from Field int androidx.core.R$id.tag_screen_reader_focusable
-id:accessibility_custom_action_18:2131034123 reachable from Field int androidx.core.R$id.accessibility_custom_action_18
-attr:fontProviderSystemFontFamily:2130771977 reachable from Field int[] androidx.core.R$styleable.FontFamily
-id:is_pooling_container_tag:2131034166 reachable from Field int androidx.customview.poolingcontainer.R$id.is_pooling_container_tag
-style:DialogWindowTheme:2131361792 reachable from Field int androidx.compose.ui.R$style.DialogWindowTheme
-drawable:ic_launcher_background:2130968583 reachable from res/mipmap-anydpi-v26/ic_launcher.xml
-string:service_description:2131296336 reachable from res/xml/apduservice.xml
-attr:ttcIndex:2130771985 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
-attr:fontProviderFallbackQuery:2130771972 reachable from Field int[] androidx.core.R$styleable.FontFamily
+string:template_percent:2131296344 reachable from Field int androidx.compose.ui.R$string.template_percent
+id:tag_accessibility_actions:2131034178 reachable from Field int androidx.core.R$id.tag_accessibility_actions
+mipmap:ic_launcher_round:2131230722 reachable from AndroidManifest.xml
 xml:apduservice:2131492864 reachable from AndroidManifest.xml
-style:FloatingDialogWindowTheme:2131361795 reachable from Field int androidx.compose.ui.R$style.FloatingDialogWindowTheme
-string:default_popup_window_title:2131296270 reachable from Field int androidx.compose.ui.R$string.default_popup_window_title
-string:switch_role:2131296342 reachable from Field int androidx.compose.ui.R$string.switch_role
 attr:font:2130771969 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
-id:tag_on_apply_window_listener:2131034183 reachable from Field int androidx.core.R$id.tag_on_apply_window_listener
-id:tag_accessibility_clickable_spans:2131034179 reachable from Field int androidx.core.R$id.tag_accessibility_clickable_spans
-string:autofill:2131296259 reachable from Field int androidx.compose.ui.R$string.autofill
-string:state_on:2131296340 reachable from Field int androidx.compose.ui.R$string.state_on
-string:indeterminate:2131296273 reachable from Field int androidx.compose.ui.R$string.indeterminate
-attr:fontProviderQuery:2130771976 reachable from Field int[] androidx.core.R$styleable.FontFamily
-id:tag_window_insets_animation_callback:2131034192 reachable from Field int androidx.core.R$id.tag_window_insets_animation_callback
-attr:fontProviderAuthority:2130771970 reachable from Field int[] androidx.core.R$styleable.FontFamily
-id:inspection_slot_table_set:2131034165 reachable from Field int androidx.compose.ui.R$id.inspection_slot_table_set
-id:tag_accessibility_heading:2131034180 reachable from Field int androidx.core.R$id.tag_accessibility_heading
-id:accessibility_action_clickable_span:2131034112 reachable from Field int androidx.core.R$id.accessibility_action_clickable_span
-id:tag_accessibility_pane_title:2131034181 reachable from Field int androidx.core.R$id.tag_accessibility_pane_title
-attr:fontStyle:2130771978 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
-id:hide_graphics_layer_in_inspector_tag:2131034159 reachable from Field int androidx.compose.ui.graphics.R$id.hide_graphics_layer_in_inspector_tag
-string:m3c_dialog:2131296310 reachable from Field int androidx.compose.material3.R$string.m3c_dialog
-string:in_progress:2131296272 reachable from Field int androidx.compose.ui.R$string.in_progress
-string:aid_group_description:2131296256 reachable from res/xml/apduservice.xml
-mipmap:ic_launcher:2131230720 reachable from AndroidManifest.xml
-id:tag_state_description:2131034187 reachable from Field int androidx.core.R$id.tag_state_description
-attr:fontProviderCerts:2130771971 reachable from Field int[] androidx.core.R$styleable.FontFamily
-id:tag_compat_insets_dispatch:2131034182 reachable from Field int androidx.core.R$id.tag_compat_insets_dispatch
 id:pooling_container_listener_holder_tag:2131034174 reachable from Field int androidx.customview.poolingcontainer.R$id.pooling_container_listener_holder_tag
+string:state_off:2131296339 reachable from Field int androidx.compose.ui.R$string.state_off
+id:view_tree_view_model_store_owner:2131034202 reachable from Field int androidx.lifecycle.viewmodel.R$id.view_tree_view_model_store_owner
+id:view_tree_disjoint_parent:2131034197 reachable from Field int androidx.core.viewtree.R$id.view_tree_disjoint_parent
+string:indeterminate:2131296273 reachable from Field int androidx.compose.ui.R$string.indeterminate
+id:tag_unhandled_key_event_manager:2131034190 reachable from Field int androidx.core.R$id.tag_unhandled_key_event_manager
+mipmap:ic_launcher:2131230720 reachable from AndroidManifest.xml
+string:default_popup_window_title:2131296270 reachable from Field int androidx.compose.ui.R$string.default_popup_window_title
+string:in_progress:2131296272 reachable from Field int androidx.compose.ui.R$string.in_progress
+id:consume_window_insets_tag:2131034155 reachable from Field int androidx.compose.ui.R$id.consume_window_insets_tag
+string:m3c_dialog:2131296310 reachable from Field int androidx.compose.material3.R$string.m3c_dialog
+id:hide_in_inspector_tag:2131034161 reachable from Field int androidx.compose.ui.R$id.hide_in_inspector_tag
+id:view_tree_navigation_event_dispatcher_owner:2131034199 reachable from Field int androidx.navigationevent.R$id.view_tree_navigation_event_dispatcher_owner
+id:tag_accessibility_clickable_spans:2131034179 reachable from Field int androidx.core.R$id.tag_accessibility_clickable_spans
+id:tag_accessibility_pane_title:2131034181 reachable from Field int androidx.core.R$id.tag_accessibility_pane_title
+id:tag_on_apply_window_listener:2131034183 reachable from Field int androidx.core.R$id.tag_on_apply_window_listener
+id:tag_window_insets_animation_callback:2131034192 reachable from Field int androidx.core.R$id.tag_window_insets_animation_callback
+string:app_name:2131296258 reachable from AndroidManifest.xml
+string:autofill:2131296259 reachable from Field int androidx.compose.ui.R$string.autofill
+id:hide_graphics_layer_in_inspector_tag:2131034159 reachable from Field int androidx.compose.ui.graphics.R$id.hide_graphics_layer_in_inspector_tag
+attr:fontProviderCerts:2130771971 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:accessibility_action_clickable_span:2131034112 reachable from Field int androidx.core.R$id.accessibility_action_clickable_span
+style:DialogWindowTheme:2131361792 reachable from Field int androidx.compose.ui.R$style.DialogWindowTheme
+id:tag_accessibility_heading:2131034180 reachable from Field int androidx.core.R$id.tag_accessibility_heading
+string:default_error_message:2131296269 reachable from Field int androidx.compose.ui.R$string.default_error_message
+attr:fontProviderQuery:2130771976 reachable from Field int[] androidx.core.R$styleable.FontFamily
+id:tag_compat_insets_dispatch:2131034182 reachable from Field int androidx.core.R$id.tag_compat_insets_dispatch
+id:tag_state_description:2131034187 reachable from Field int androidx.core.R$id.tag_state_description
+attr:fontStyle:2130771978 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
+attr:ttcIndex:2130771985 reachable from Field int[] androidx.core.R$styleable.FontFamilyFont
 attr:alpha:2130771968 is not reachable.
 attr:font:2130771969 is not reachable.
 attr:fontProviderAuthority:2130771970 is not reachable.

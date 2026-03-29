@@ -6,7 +6,7 @@
     shrinking="true"
     mergedManifest="build\intermediates\merged_manifest\release\processReleaseMainManifest\AndroidManifest.xml"
     manifestMergeReport="build\outputs\logs\manifest-merger-release-report.txt"
-    proguardFiles="build\intermediates\default_proguard_files\global\proguard-android-optimize.txt-9.0.1;proguard-rules.pro;build\intermediates\default_proguard_files\global\proguard-android-optimize.txt-9.0.1;proguard-rules.pro"
+    proguardFiles="build\intermediates\default_proguard_files\global\proguard-android-optimize.txt-9.0.1;proguard-rules.pro"
     partialResultsDir="build\intermediates\lint_vital_partial_results\release\lintVitalAnalyzeRelease\out">
   <buildFeatures/>
   <sourceProviders>
@@ -25,6 +25,6 @@
       type="MAIN"
       applicationId="com.example.nfctagemulator"
       generatedSourceFolders="build\generated\ap_generated_sources\release\out"
-      desugaredMethodsFiles="C:\Users\vladl\.gradle\caches\9.2.1\transforms\ba171031b451579ac65587d1ea79fe49\workspace\transformed\D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="C:\Users\vladl\.gradle\caches\9.2.1\transforms\0403c7095dabccee694cacaf862df5a0\workspace\transformed\D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

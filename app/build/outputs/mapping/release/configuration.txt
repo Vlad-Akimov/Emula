@@ -124,23 +124,23 @@
     public static ** valueOf(java.lang.String);
 }
 # End of content from D:\Projects\NfcTagEmulator\app\proguard-rules.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\e8aa42358a9de8f832f66cc5d4b8ac85\workspace\transformed\navigationevent\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\2d8339bd334b11bad7b2706f51716b5a\workspace\transformed\navigationevent\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\e8aa42358a9de8f832f66cc5d4b8ac85\workspace\transformed\navigationevent\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\cc58173a51d4e8ed69748c6ab4436614\workspace\transformed\navigationevent-compose\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\2d8339bd334b11bad7b2706f51716b5a\workspace\transformed\navigationevent\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\2cbde5da121d9889bbb168271656b518\workspace\transformed\navigationevent-compose\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\cc58173a51d4e8ed69748c6ab4436614\workspace\transformed\navigationevent-compose\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\76bd039f574db1c079ff0c4676536e49\workspace\transformed\ui-geometry\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\2cbde5da121d9889bbb168271656b518\workspace\transformed\navigationevent-compose\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1a842c971f1257c49fe758460bed3633\workspace\transformed\ui-geometry\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\76bd039f574db1c079ff0c4676536e49\workspace\transformed\ui-geometry\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\5e146e25ef6716911a80436d7bf868ae\workspace\transformed\ui-tooling-preview\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1a842c971f1257c49fe758460bed3633\workspace\transformed\ui-geometry\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\6d26d898ea19e1189cb41ff95a979900\workspace\transformed\ui-tooling-preview\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\5e146e25ef6716911a80436d7bf868ae\workspace\transformed\ui-tooling-preview\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\c6c5ec5fbd29990bfea9721ba83d98f5\workspace\transformed\ui-util\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\6d26d898ea19e1189cb41ff95a979900\workspace\transformed\ui-tooling-preview\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1b43150af5c227095814c0df65586882\workspace\transformed\ui-util\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,8 +166,8 @@
     static java.lang.Void throw*ExceptionForNullCheck(...);
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\c6c5ec5fbd29990bfea9721ba83d98f5\workspace\transformed\ui-util\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\95747e5beb241aa8fa1e97ec05b4fb78\workspace\transformed\ui-unit\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1b43150af5c227095814c0df65586882\workspace\transformed\ui-util\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\d7952ce633922ded73a589ab3b6bb4ab\workspace\transformed\ui-unit\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -193,8 +193,8 @@
     static java.lang.Void throw*ExceptionForNullCheck(...);
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\95747e5beb241aa8fa1e97ec05b4fb78\workspace\transformed\ui-unit\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\53c17104d90bf07363e2918a5bd8df03\workspace\transformed\ui-text\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\d7952ce633922ded73a589ab3b6bb4ab\workspace\transformed\ui-unit\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\faff6f47ba2c609e31e2f38d38134490\workspace\transformed\ui-text\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -220,8 +220,8 @@
     static java.lang.Void throw*ExceptionForNullCheck(...);
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\53c17104d90bf07363e2918a5bd8df03\workspace\transformed\ui-text\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\14e38e79a0053860c4714e42fc95930d\workspace\transformed\ui-graphics-release\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\faff6f47ba2c609e31e2f38d38134490\workspace\transformed\ui-text\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1f4be6a1c8a6a5eab80c0c1a592edca3\workspace\transformed\ui-graphics-release\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -254,8 +254,8 @@
     public boolean isHardwareAccelerated();
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\14e38e79a0053860c4714e42fc95930d\workspace\transformed\ui-graphics-release\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\3215fdf47b0840eeebc763948bdfcb5c\workspace\transformed\ui-release\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1f4be6a1c8a6a5eab80c0c1a592edca3\workspace\transformed\ui-graphics-release\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\0c7e6d14262f5029347a6a59b36af701\workspace\transformed\ui-release\proguard.txt
 # Copyright (C) 2020 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -312,26 +312,26 @@
 }
 
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\3215fdf47b0840eeebc763948bdfcb5c\workspace\transformed\ui-release\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\906fa764426418a3a9c5457e770391e4\workspace\transformed\activity-ktx-1.12.4\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\0c7e6d14262f5029347a6a59b36af701\workspace\transformed\ui-release\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\48d910b9e714a8516be649280f1ec362\workspace\transformed\activity-ktx-1.12.4\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\906fa764426418a3a9c5457e770391e4\workspace\transformed\activity-ktx-1.12.4\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\3aa07528173969b559fc247759e586f6\workspace\transformed\activity-1.12.4\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\48d910b9e714a8516be649280f1ec362\workspace\transformed\activity-ktx-1.12.4\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\453b85ae4db35c8068c33973c2b13110\workspace\transformed\activity-1.12.4\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\3aa07528173969b559fc247759e586f6\workspace\transformed\activity-1.12.4\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\df182edcdf4e95f9948091634901e951\workspace\transformed\activity-compose-1.12.4\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\453b85ae4db35c8068c33973c2b13110\workspace\transformed\activity-1.12.4\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\b2007e4c02590f52c534a24383b8f327\workspace\transformed\activity-compose-1.12.4\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\df182edcdf4e95f9948091634901e951\workspace\transformed\activity-compose-1.12.4\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\c3b2d2394d856e2ab07c06c5b98897b3\workspace\transformed\graphics-path-1.0.1\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\b2007e4c02590f52c534a24383b8f327\workspace\transformed\activity-compose-1.12.4\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\c773e2a88f8f153fbb78ea3b99acf48a\workspace\transformed\graphics-path-1.0.1\proguard.txt
 -keepclasseswithmembers class androidx.graphics.path.** {
     native <methods>;
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\c3b2d2394d856e2ab07c06c5b98897b3\workspace\transformed\graphics-path-1.0.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\c773e2a88f8f153fbb78ea3b99acf48a\workspace\transformed\graphics-path-1.0.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\3e13eeb0f6052347a450dcecea285b5e\workspace\transformed\core-1.17.0\proguard.txt
 # Never inline methods, but allow shrinking and obfuscation.
 -keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.ViewCompat$Api* {
   <methods>;
@@ -349,24 +349,24 @@
   <methods>;
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\f9bfeedf0e3c538aa6baf8c53de36da0\workspace\transformed\core-1.17.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\81f5eb0071c1b4c7164b23dc2ca7f8de\workspace\transformed\lifecycle-process-2.10.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\3e13eeb0f6052347a450dcecea285b5e\workspace\transformed\core-1.17.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\f8516dd00fffecdbcc6031b4d55118d4\workspace\transformed\lifecycle-process-2.10.0\proguard.txt
 # this rule is need to work properly when app is compiled with api 28, see b/142778206
 -keepclassmembers class * extends androidx.lifecycle.EmptyActivityLifecycleCallbacks { *; }
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\81f5eb0071c1b4c7164b23dc2ca7f8de\workspace\transformed\lifecycle-process-2.10.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\caffd4e8ce6107ee7df83cfa5148bc69\workspace\transformed\lifecycle-viewmodel-ktx-2.10.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\f8516dd00fffecdbcc6031b4d55118d4\workspace\transformed\lifecycle-process-2.10.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\b10d74e054430b43160d64e6e2a1d93d\workspace\transformed\lifecycle-viewmodel-ktx-2.10.0\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\caffd4e8ce6107ee7df83cfa5148bc69\workspace\transformed\lifecycle-viewmodel-ktx-2.10.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\7ca95ec627d5cb6a013085c38eb4a482\workspace\transformed\lifecycle-livedata-core-2.10.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\b10d74e054430b43160d64e6e2a1d93d\workspace\transformed\lifecycle-viewmodel-ktx-2.10.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\0aec91581a23adaafd0cf17428eebebf\workspace\transformed\lifecycle-livedata-core-2.10.0\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\7ca95ec627d5cb6a013085c38eb4a482\workspace\transformed\lifecycle-livedata-core-2.10.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\c081aba17b3f15373946370766453698\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-lifecycle-lifecycle-common-java8.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\0aec91581a23adaafd0cf17428eebebf\workspace\transformed\lifecycle-livedata-core-2.10.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\06f895ce10b4b9f808b233878ccece4a\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-lifecycle-lifecycle-common-java8.pro
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\c081aba17b3f15373946370766453698\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-lifecycle-lifecycle-common-java8.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\9bea6bde5377ae68dbc09f264530f512\workspace\transformed\lifecycle-viewmodel\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\06f895ce10b4b9f808b233878ccece4a\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-lifecycle-lifecycle-common-java8.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\28473c75e34b51291006ebaa5089aa9b\workspace\transformed\lifecycle-viewmodel\proguard.txt
 -keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>();
 }
@@ -375,16 +375,16 @@
     <init>(android.app.Application);
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\9bea6bde5377ae68dbc09f264530f512\workspace\transformed\lifecycle-viewmodel\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\c57e5a9c51084182dd2a353d1679aee0\workspace\transformed\runtime-annotation\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\28473c75e34b51291006ebaa5089aa9b\workspace\transformed\lifecycle-viewmodel\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\36d974c9b844fc8eb8eaae826110a416\workspace\transformed\runtime-annotation\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\c57e5a9c51084182dd2a353d1679aee0\workspace\transformed\runtime-annotation\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\dfbd2c4e1dd9e2965604696efa0c2b57\workspace\transformed\savedstate-ktx-1.4.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\36d974c9b844fc8eb8eaae826110a416\workspace\transformed\runtime-annotation\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1c5ebbb119b551274e86e0d7a3bb7f00\workspace\transformed\savedstate-ktx-1.4.0\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\dfbd2c4e1dd9e2965604696efa0c2b57\workspace\transformed\savedstate-ktx-1.4.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\39627463c995b0bf693e4b5f963400a6\workspace\transformed\savedstate\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1c5ebbb119b551274e86e0d7a3bb7f00\workspace\transformed\savedstate-ktx-1.4.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\6725c9ceef34307218dccf54175fb2f6\workspace\transformed\savedstate\proguard.txt
 # Copyright (C) 2019 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -403,8 +403,8 @@
     <init>();
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\39627463c995b0bf693e4b5f963400a6\workspace\transformed\savedstate\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\e4791b7491c1e11a477a6395d6d44e7f\workspace\transformed\savedstate-compose\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\6725c9ceef34307218dccf54175fb2f6\workspace\transformed\savedstate\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1694ce2be9f7a9602236636762dac6d3\workspace\transformed\savedstate-compose\proguard.txt
 # Workaround for https://issuetracker.google.com/issues/346808608
 #
 # `androidx.savedstate.compose.LocalSavedStateRegistryOwner` will reflectively lookup for
@@ -424,8 +424,8 @@
     public static *** getLocalSavedStateRegistryOwner();
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\e4791b7491c1e11a477a6395d6d44e7f\workspace\transformed\savedstate-compose\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\e03c810e42d8ac92c54e68d8b715ee97\workspace\transformed\runtime\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1694ce2be9f7a9602236636762dac6d3\workspace\transformed\savedstate-compose\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1de0a0d3acfce6fcbb189596774b580e\workspace\transformed\runtime\proguard.txt
 -assumenosideeffects public class androidx.compose.runtime.ComposerKt {
     void sourceInformation(androidx.compose.runtime.Composer,java.lang.String);
     void sourceInformationMarkerStart(androidx.compose.runtime.Composer,int,java.lang.String);
@@ -461,12 +461,12 @@
 }
 
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\e03c810e42d8ac92c54e68d8b715ee97\workspace\transformed\runtime\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\00e06eebf0feac0111794c608608ae09\workspace\transformed\runtime-saveable\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1de0a0d3acfce6fcbb189596774b580e\workspace\transformed\runtime\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\78f59f890e0113eeda925fed99006f72\workspace\transformed\runtime-saveable\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\00e06eebf0feac0111794c608608ae09\workspace\transformed\runtime-saveable\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\0b865f5ed43bfc4cb70f042181615996\workspace\transformed\lifecycle-runtime-compose\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\78f59f890e0113eeda925fed99006f72\workspace\transformed\runtime-saveable\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\bcf59d2838a6c4cedd58a0ef228b7388\workspace\transformed\lifecycle-runtime-compose\proguard.txt
 # Workaround for https://issuetracker.google.com/issues/346808608
 #
 # `androidx.lifecycle.compose.LocalLifecycleOwner` will reflectively lookup for
@@ -486,8 +486,8 @@
     public static *** getLocalLifecycleOwner();
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\0b865f5ed43bfc4cb70f042181615996\workspace\transformed\lifecycle-runtime-compose\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\89f621f1662f818d9aedab8e9f2c49b4\workspace\transformed\lifecycle-runtime\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\bcf59d2838a6c4cedd58a0ef228b7388\workspace\transformed\lifecycle-runtime-compose\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\d52b1a98aea9101e96b73c75716f2405\workspace\transformed\lifecycle-runtime\proguard.txt
 -keepattributes AnnotationDefault,
                 RuntimeVisibleAnnotations,
                 RuntimeVisibleParameterAnnotations,
@@ -515,12 +515,12 @@
 # Also this rule prevents registerIn from being inlined.
 -keepclassmembers class androidx.lifecycle.ReportFragment$LifecycleCallbacks { *; }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\89f621f1662f818d9aedab8e9f2c49b4\workspace\transformed\lifecycle-runtime\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\880b80a00c62d4470aaa260fdb560998\workspace\transformed\lifecycle-runtime-ktx\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\d52b1a98aea9101e96b73c75716f2405\workspace\transformed\lifecycle-runtime\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\b2befcd4d7962409a67fdc9977109a63\workspace\transformed\lifecycle-runtime-ktx\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\880b80a00c62d4470aaa260fdb560998\workspace\transformed\lifecycle-runtime-ktx\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\3c121fdc1199dec98c980d5e535a0576\workspace\transformed\lifecycle-viewmodel-savedstate\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\b2befcd4d7962409a67fdc9977109a63\workspace\transformed\lifecycle-runtime-ktx\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\4fb69c41a4d261c5b371168fd793f06a\workspace\transformed\lifecycle-viewmodel-savedstate\proguard.txt
 -keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>(androidx.lifecycle.SavedStateHandle);
 }
@@ -529,16 +529,16 @@
     <init>(android.app.Application,androidx.lifecycle.SavedStateHandle);
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\3c121fdc1199dec98c980d5e535a0576\workspace\transformed\lifecycle-viewmodel-savedstate\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\10f51b8c5d48ec3c713cea9f865fa490\workspace\transformed\core-ktx-1.17.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\4fb69c41a4d261c5b371168fd793f06a\workspace\transformed\lifecycle-viewmodel-savedstate\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\bd32b2bdaaf3a3241fc2685cd1c654c4\workspace\transformed\core-ktx-1.17.0\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\10f51b8c5d48ec3c713cea9f865fa490\workspace\transformed\core-ktx-1.17.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\512a8c15b484665d54e952b308ff39f1\workspace\transformed\core-viewtree-1.0.0\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\bd32b2bdaaf3a3241fc2685cd1c654c4\workspace\transformed\core-ktx-1.17.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\34292df023df7394cff3de8c4489641e\workspace\transformed\core-viewtree-1.0.0\proguard.txt
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\512a8c15b484665d54e952b308ff39f1\workspace\transformed\core-viewtree-1.0.0\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\18a58cabca65d5cf63335959978c16f0\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\34292df023df7394cff3de8c4489641e\workspace\transformed\core-viewtree-1.0.0\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\6b69ef9a300ff0f5da431318dd22ee5a\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
 # When editing this file, update the following files as well:
 # - META-INF/proguard/coroutines.pro
 # - META-INF/com.android.tools/proguard/coroutines.pro
@@ -567,8 +567,8 @@
 # An annotation used for build tooling, won't be directly accessed.
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\18a58cabca65d5cf63335959978c16f0\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\72a3d3fb67f5019d5e16d8b7c3d099cf\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\6b69ef9a300ff0f5da431318dd22ee5a\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\bc5aa23cad72fd80968ed166edf7c11a\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
 # Allow R8 to optimize away the FastServiceLoader.
 # Together with ServiceLoader optimization in R8
 # this results in direct instantiation when loading Dispatchers.Main
@@ -592,8 +592,8 @@
     boolean getRECOVER_STACK_TRACES() return false;
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\72a3d3fb67f5019d5e16d8b7c3d099cf\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\0d26ffaf733b5932cddab0cc81ffc90b\workspace\transformed\startup-runtime-1.1.1\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\bc5aa23cad72fd80968ed166edf7c11a\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\62383d4f34c26534dde463b712ff3ff4\workspace\transformed\startup-runtime-1.1.1\proguard.txt
 # It's important that we preserve initializer names, given they are used in the AndroidManifest.xml.
 -keepnames class * extends androidx.startup.Initializer
 
@@ -607,19 +607,19 @@
 
 -assumenosideeffects class androidx.startup.StartupLogger { public static <methods>; }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\0d26ffaf733b5932cddab0cc81ffc90b\workspace\transformed\startup-runtime-1.1.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\9f4760ce84ead119f5f7a8a3964e29bb\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\62383d4f34c26534dde463b712ff3ff4\workspace\transformed\startup-runtime-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\767b567aee097fe41f439bafc6a867e3\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
 -keep class * implements androidx.versionedparcelable.VersionedParcelable
 -keep public class android.support.**Parcelizer { *; }
 -keep public class androidx.**Parcelizer { *; }
 -keep public class androidx.versionedparcelable.ParcelImpl
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\9f4760ce84ead119f5f7a8a3964e29bb\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\9ce4df67a27d8adfb04de45bde8a4172\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-collection-collection-ktx.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\767b567aee097fe41f439bafc6a867e3\workspace\transformed\versionedparcelable-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\fb4c00c489b8e1801c455b67b24c1e00\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-collection-collection-ktx.pro
 # Intentionally empty proguard rules to indicate this library is safe to shrink
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\9ce4df67a27d8adfb04de45bde8a4172\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-collection-collection-ktx.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\b06ca0c926c5d294be6e44c0f9ec5b27\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\fb4c00c489b8e1801c455b67b24c1e00\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-collection-collection-ktx.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\70076c0c978469a5bfe945b28af6d83a\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
 -keep,allowobfuscation @interface androidx.annotation.Keep
 -keep @androidx.annotation.Keep class * {*;}
 
@@ -639,8 +639,8 @@
   @androidx.annotation.DoNotInline <methods>;
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\b06ca0c926c5d294be6e44c0f9ec5b27\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1fef160f05b1047a04271b0f406f06ba\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-common.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\70076c0c978469a5bfe945b28af6d83a\workspace\transformed\shrink-rules\lib\META-INF\proguard\androidx-annotations.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\f1da5bf3b94951f3720f6b12468cca9d\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-common.pro
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
 -if @kotlinx.serialization.Serializable class **
@@ -683,8 +683,8 @@
     private ** descriptor;
 }
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1fef160f05b1047a04271b0f406f06ba\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-common.pro
-# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\1fef160f05b1047a04271b0f406f06ba\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-r8.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\f1da5bf3b94951f3720f6b12468cca9d\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-common.pro
+# The proguard configuration file for the following section is C:\Users\vladl\.gradle\caches\9.2.1\transforms\f1da5bf3b94951f3720f6b12468cca9d\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-r8.pro
 # Rule to save runtime annotations on serializable class.
 # If the R8 full mode is used, annotations are removed from classes-files.
 #
@@ -698,7 +698,7 @@
  -if @kotlinx.serialization.Serializable class **
  -keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
 
-# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\1fef160f05b1047a04271b0f406f06ba\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-r8.pro
+# End of content from C:\Users\vladl\.gradle\caches\9.2.1\transforms\f1da5bf3b94951f3720f6b12468cca9d\workspace\transformed\shrink-rules\lib\META-INF\com.android.tools\r8\kotlinx-serialization-r8.pro
 # The proguard configuration file for the following section is <unknown>
 
 # End of content from <unknown>

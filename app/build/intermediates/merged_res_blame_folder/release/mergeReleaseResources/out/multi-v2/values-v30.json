@@ -4,7 +4,7 @@
             "outputFile": "com.example.nfctagemulator.app-mergeReleaseResources-32:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\vladl\\.gradle\\caches\\9.2.1\\transforms\\7ff641f8f292603c9e7e766394091837\\workspace\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\vladl\\.gradle\\caches\\9.2.1\\transforms\\4f8bece270f92764c87b0c35e1d1ded9\\workspace\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

@@ -68,3 +68,4 @@ fastlane/readme.md
 google-services.json
 app/src/main/res/values/secrets.xml
 app/src/main/assets/config.json
+app/my-release-key.jks
