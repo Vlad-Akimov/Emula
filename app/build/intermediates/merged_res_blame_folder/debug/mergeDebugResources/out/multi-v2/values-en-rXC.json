@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.nfctagemulator.app-mergeDebugResources-31:/values-en-rXC/values-en-rXC.xml",
+            "outputFile": "com.example.nfctagemulator.app-mergeDebugResources-37:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
                     "source": "C:\\Users\\vladl\\.gradle\\caches\\9.2.1\\transforms\\69cc86a2e9ff7b2b069393d0ec352ffd\\workspace\\transformed\\foundation-release\\res\\values-en-rXC\\values-en-rXC.xml",

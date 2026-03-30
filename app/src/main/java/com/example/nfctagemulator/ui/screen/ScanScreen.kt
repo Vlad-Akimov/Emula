@@ -20,34 +20,39 @@ import androidx.compose.ui.unit.sp
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.repository.TagRepository
 import com.example.nfctagemulator.ui.theme.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
     repository: TagRepository,
     scannedTag: TagData?,
-    onBackClick: () -> Unit,
-    onCreateClick: () -> Unit
+    onNavigateToCreate: () -> Unit
 ) {
     val context = LocalContext.current
     var lastScannedUid by remember { mutableStateOf<String?>(null) }
     var scanCount by remember { mutableStateOf(0) }
     var isScanning by remember { mutableStateOf(true) }
+    var localScannedTag by remember { mutableStateOf(scannedTag) }
 
     LaunchedEffect(scannedTag) {
         scannedTag?.let { tag ->
-            lastScannedUid = tag.uid
-            scanCount++
-            isScanning = false
+            if (tag.uid != lastScannedUid) {
+                lastScannedUid = tag.uid
+                localScannedTag = tag
+                scanCount++
+                isScanning = false
 
-            Toast.makeText(
-                context,
-                "✅ ${tag.name}",
-                Toast.LENGTH_SHORT
-            ).show()
+                Toast.makeText(
+                    context,
+                    "✅ ${tag.name}",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-            kotlinx.coroutines.delay(2000)
-            isScanning = true
+                delay(2000)
+                isScanning = true
+                localScannedTag = null
+            }
         }
     }
 
@@ -72,191 +77,149 @@ fun ScanScreen(
         label = "pulse"
     )
 
-    Scaffold(
-        containerColor = SurfaceDark,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        "SCAN NFC",
-                        color = NeonCyan
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Text("←", fontSize = 20.sp, color = NeonCyan)
-                    }
-                },
-                actions = {
-                    // Create button in top bar
-                    Button(
-                        onClick = onCreateClick,
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(end = 8.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonGreen.copy(alpha = 0.2f),
-                            contentColor = NeonGreen
-                        )
-                    ) {
-                        Text("CREATE", fontSize = 12.sp)
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(BackgroundDark, SurfaceDark)
                 )
             )
-        }
-    ) { paddingValues ->
-        Box(
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(BackgroundDark, SurfaceDark)
-                    )
-                )
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
+            // Header
+            Text(
+                text = "SCAN NFC",
+                style = MaterialTheme.typography.headlineMedium,
+                color = NeonCyan,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+
+            // Animated scanner
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // Animated scanner
-                Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .scale(if (isScanning) pulseScale else 1f)
-                        .drawBehind {
-                            // Scanning arc
-                            val arcSize = size.minDimension * 0.8f
-                            val arcOffset = (size.minDimension - arcSize) / 2
+                    .size(220.dp)
+                    .scale(if (isScanning) pulseScale else 1f)
+                    .drawBehind {
+                        val arcSize = size.minDimension * 0.8f
 
-                            for (i in 0..3) {
-                                val startAngle = scanProgress * 360f + i * 90f
-                                drawArc(
-                                    brush = Brush.sweepGradient(
-                                        colors = listOf(NeonCyan, NeonPurple, NeonPink, NeonCyan),
-                                        center = Offset(size.width / 2, size.height / 2)
-                                    ),
-                                    startAngle = startAngle,
-                                    sweepAngle = 45f,
-                                    useCenter = false,
-                                    style = Stroke(width = 8f)
-                                )
-                            }
-
-                            // Center circle
-                            drawCircle(
-                                brush = Brush.radialGradient(
-                                    colors = if (scannedTag != null)
-                                        listOf(NeonGreen, NeonCyan)
-                                    else
-                                        listOf(NeonCyan, NeonPurple)
+                        for (i in 0..3) {
+                            val startAngle = scanProgress * 360f + i * 90f
+                            drawArc(
+                                brush = Brush.sweepGradient(
+                                    colors = listOf(NeonCyan, NeonPurple, NeonPink, NeonCyan),
+                                    center = Offset(size.width / 2, size.height / 2)
                                 ),
-                                radius = size.minDimension / 3
+                                startAngle = startAngle,
+                                sweepAngle = 45f,
+                                useCenter = false,
+                                style = Stroke(width = 8f)
                             )
                         }
-                        .clip(RoundedCornerShape(32.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (scannedTag != null) "✓" else "NFC",
-                        fontSize = 48.sp,
-                        color = Color.White
-                    )
-                }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                colors = if (localScannedTag != null)
+                                    listOf(NeonGreen, NeonCyan)
+                                else
+                                    listOf(NeonCyan, NeonPurple)
+                            ),
+                            radius = size.minDimension / 3
+                        )
+                    }
+                    .clip(RoundedCornerShape(32.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (localScannedTag != null) "✓" else "NFC",
+                    fontSize = 52.sp,
+                    color = Color.White
+                )
+            }
 
-                // Status card
-                Card(
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Status card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = SurfaceGlow
+                )
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = SurfaceGlow
-                    )
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Text(
+                        text = when {
+                            localScannedTag != null -> "TAG DETECTED"
+                            isScanning -> "SCANNING"
+                            else -> "READY"
+                        },
+                        style = MaterialTheme.typography.titleLarge,
+                        color = when {
+                            localScannedTag != null -> NeonGreen
+                            isScanning -> NeonCyan
+                            else -> NeonPurple
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (localScannedTag != null) {
                         Text(
-                            text = when {
-                                scannedTag != null -> "TAG DETECTED"
-                                isScanning -> "SCANNING"
-                                else -> "READY"
-                            },
-                            style = MaterialTheme.typography.titleLarge,
-                            color = when {
-                                scannedTag != null -> NeonGreen
-                                isScanning -> NeonCyan
-                                else -> NeonPurple
-                            }
+                            text = localScannedTag!!.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color.White
                         )
+                        Text(
+                            text = formatUid(localScannedTag!!.uid),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = NeonCyan,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                        )
+                    } else {
+                        Text(
+                            text = if (isScanning)
+                                "Bring an NFC tag close to your device"
+                            else
+                                "Tag saved successfully",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (scannedTag != null) {
-                            Text(
-                                text = scannedTag.name,
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = Color.White
-                            )
-                            Text(
-                                text = formatUid(scannedTag.uid),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = NeonCyan,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                            )
-                        } else {
-                            Text(
-                                text = if (isScanning)
-                                    "Bring an NFC tag close to your device"
-                                else
-                                    "Tag saved successfully",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.White.copy(alpha = 0.7f),
-                                textAlign = TextAlign.Center
-                            )
-                        }
-
-                        if (scanCount > 0) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Scanned: $scanCount",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = NeonPurple
-                            )
-                        }
+                    if (scanCount > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Scanned: $scanCount",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = NeonPurple
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(48.dp))
-
-                // Back button
-                OutlinedButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = NeonCyan
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder
-                ) {
-                    Text("BACK TO EMULATOR")
-                }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Note about creating tags
+            Text(
+                text = "Need a new tag? Tap CREATE below",
+                fontSize = 12.sp,
+                color = Color.White.copy(alpha = 0.5f)
+            )
         }
     }
 }

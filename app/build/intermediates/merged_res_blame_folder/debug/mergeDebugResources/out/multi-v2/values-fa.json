@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.nfctagemulator.app-mergeDebugResources-31:/values-fa/values-fa.xml",
+            "outputFile": "com.example.nfctagemulator.app-mergeDebugResources-37:/values-fa/values-fa.xml",
             "map": [
                 {
                     "source": "C:\\Users\\vladl\\.gradle\\caches\\9.2.1\\transforms\\3e13eeb0f6052347a450dcecea285b5e\\workspace\\transformed\\core-1.17.0\\res\\values-fa\\values-fa.xml",

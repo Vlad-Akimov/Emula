@@ -2,6 +2,7 @@ package com.example.nfctagemulator.ui.screen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -17,11 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.model.TagType
 import com.example.nfctagemulator.data.repository.TagRepository
-import com.example.nfctagemulator.ui.theme.NeonCyan
-import com.example.nfctagemulator.ui.theme.NeonGreen
-import com.example.nfctagemulator.ui.theme.NeonPurple
-import com.example.nfctagemulator.ui.theme.SurfaceDark
-import com.example.nfctagemulator.ui.theme.SurfaceGlow
+import com.example.nfctagemulator.ui.theme.*
 import java.nio.charset.Charset
 import java.util.UUID
 
@@ -44,34 +42,40 @@ fun CreateTagScreen(
     var selectedType by remember { mutableStateOf(CreateTagType.URL) }
     var isCreating by remember { mutableStateOf(false) }
 
-    Scaffold(
-        containerColor = SurfaceDark,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "CREATE NFC TAG",
-                        color = NeonCyan
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Text(text = "←", fontSize = 20.sp, color = NeonCyan)
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(BackgroundDark, SurfaceDark),
+                    startY = 0f,
+                    endY = 1000f
                 )
             )
-        }
-    ) { paddingValues ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
+                .padding(24.dp)
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "CREATE NFC TAG",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = NeonCyan
+                )
+                Spacer(modifier = Modifier.width(48.dp))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Type selection row
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
