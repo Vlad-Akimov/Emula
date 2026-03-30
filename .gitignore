@@ -4,6 +4,9 @@
 ### Android ###
 # Gradle files
 .gradle/
+gradle-wrapper.jar
+/gradlew
+/gradlew.bat
 local.properties
 *.iml
 *.log
@@ -33,6 +36,8 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+my-release-key.jks
+app/my-release-key.jks
 
 # OS files
 .DS_Store
@@ -45,6 +50,9 @@ Thumbs.db
 # Build artifacts
 captures/
 output.json
+/build/
+/app/build/
+*/build/
 
 # Crashlytics
 com_crashlytics_export_strings.xml
@@ -68,4 +76,3 @@ fastlane/readme.md
 google-services.json
 app/src/main/res/values/secrets.xml
 app/src/main/assets/config.json
-app/my-release-key.jks
