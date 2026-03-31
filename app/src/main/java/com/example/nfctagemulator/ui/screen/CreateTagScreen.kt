@@ -2,23 +2,31 @@ package com.example.nfctagemulator.ui.screen
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.model.TagType
 import com.example.nfctagemulator.data.repository.TagRepository
+import com.example.nfctagemulator.ui.components.GlowCard
 import com.example.nfctagemulator.ui.theme.*
 import java.nio.charset.Charset
 import java.util.UUID
@@ -42,14 +50,23 @@ fun CreateTagScreen(
     var selectedType by remember { mutableStateOf(CreateTagType.URL) }
     var isCreating by remember { mutableStateOf(false) }
 
+    val infiniteTransition = rememberInfiniteTransition(label = "create")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, SurfaceDark),
-                    startY = 0f,
-                    endY = 1000f
+                    colors = listOf(BackgroundDark, SurfaceDark)
                 )
             )
     ) {
@@ -60,82 +77,73 @@ fun CreateTagScreen(
                 .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
+            // Header with back button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = NeonCyan
+                    )
+                }
                 Text(
-                    text = "CREATE NFC TAG",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = NeonCyan
+                    text = "CREATE TAG",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                        letterSpacing = 2.sp
+                    ),
+                    color = NeonCyan,
+                    modifier = Modifier.shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        clip = false
+                    )
                 )
-                Spacer(modifier = Modifier.width(48.dp))
+                Spacer(modifier = Modifier.width(40.dp))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Type selection row
+            // Type selection row with modern cards
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                item {
-                    TypeCard(
-                        emoji = "🔗",
-                        title = "URL",
-                        description = "Website link",
-                        isSelected = selectedType == CreateTagType.URL,
-                        onClick = { selectedType = CreateTagType.URL }
-                    )
-                }
-                item {
-                    TypeCard(
-                        emoji = "📝",
-                        title = "Text",
-                        description = "Plain text",
-                        isSelected = selectedType == CreateTagType.TEXT,
-                        onClick = { selectedType = CreateTagType.TEXT }
-                    )
-                }
-                item {
-                    TypeCard(
-                        emoji = "📞",
-                        title = "Phone",
-                        description = "Call number",
-                        isSelected = selectedType == CreateTagType.PHONE,
-                        onClick = { selectedType = CreateTagType.PHONE }
-                    )
-                }
-                item {
-                    TypeCard(
-                        emoji = "✉️",
-                        title = "Email",
-                        description = "Send email",
-                        isSelected = selectedType == CreateTagType.EMAIL,
-                        onClick = { selectedType = CreateTagType.EMAIL }
-                    )
-                }
-                item {
-                    TypeCard(
-                        emoji = "👤",
-                        title = "Contact",
-                        description = "Full contact",
-                        isSelected = selectedType == CreateTagType.CONTACT,
-                        onClick = { selectedType = CreateTagType.CONTACT }
+                val types = listOf(
+                    CreateTagType.URL to "🔗",
+                    CreateTagType.TEXT to "📝",
+                    CreateTagType.PHONE to "📞",
+                    CreateTagType.EMAIL to "✉️",
+                    CreateTagType.CONTACT to "👤"
+                )
+                items(types) { (type, emoji) ->
+                    ModernTypeCard(
+                        emoji = emoji,
+                        title = type.name,
+                        isSelected = selectedType == type,
+                        onClick = { selectedType = type }
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // Input Form
-            Card(
+            // Input Form with GlowCard
+            GlowCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = SurfaceGlow
+                gradientColors = listOf(
+                    when (selectedType) {
+                        CreateTagType.CONTACT -> NeonGreen.copy(alpha = 0.08f)
+                        else -> NeonCyan.copy(alpha = 0.08f)
+                    },
+                    SurfaceDark
                 )
             ) {
                 Column(
@@ -143,216 +151,196 @@ fun CreateTagScreen(
                         .fillMaxWidth()
                         .padding(24.dp)
                 ) {
-                    Text(
-                        text = "TAG DETAILS",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = NeonCyan,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                    // Section header with animated dot
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 20.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(
+                                    color = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
+                                    shape = RoundedCornerShape(3.dp)
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "TAG DETAILS",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                                letterSpacing = 1.sp
+                            ),
+                            color = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan
+                        )
+                    }
 
                     // Tag Name Input
                     OutlinedTextField(
                         value = tagName,
                         onValueChange = { tagName = it },
-                        label = { Text(text = "Tag Name (optional)") },
-                        placeholder = { Text(text = "My NFC Tag") },
+                        label = {
+                            Text(
+                                "Tag Name",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                "My NFC Tag",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Tag,
+                                contentDescription = null,
+                                tint = NeonCyan.copy(alpha = 0.7f),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = NeonCyan.copy(alpha = 0.3f),
-                            focusedLabelColor = NeonCyan,
-                            cursorColor = NeonCyan,
+                            focusedBorderColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
+                            unfocusedBorderColor = (if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan).copy(alpha = 0.3f),
+                            focusedLabelColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
+                            cursorColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
                             focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent
                         ),
                         singleLine = true
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                    if (selectedType == CreateTagType.CONTACT) {
-                        // Contact Form
-                        OutlinedTextField(
-                            value = contactName,
-                            onValueChange = { contactName = it },
-                            label = { Text(text = "Full Name") },
-                            placeholder = { Text(text = "John Doe") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NeonPurple,
-                                unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
-                                focusedLabelColor = NeonPurple,
-                                cursorColor = NeonPurple,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            singleLine = true
+                    // Dynamic content based on selected type
+                    when (selectedType) {
+                        CreateTagType.CONTACT -> ContactForm(
+                            contactName = contactName,
+                            onContactNameChange = { contactName = it },
+                            contactPhone = contactPhone,
+                            onContactPhoneChange = { contactPhone = it },
+                            contactEmail = contactEmail,
+                            onContactEmailChange = { contactEmail = it }
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = contactPhone,
-                            onValueChange = { contactPhone = it },
-                            label = { Text(text = "Phone Number") },
-                            placeholder = { Text(text = "+1234567890") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NeonPurple,
-                                unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
-                                focusedLabelColor = NeonPurple,
-                                cursorColor = NeonPurple,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            singleLine = true
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = contactEmail,
-                            onValueChange = { contactEmail = it },
-                            label = { Text(text = "Email Address") },
-                            placeholder = { Text(text = "john@example.com") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NeonPurple,
-                                unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
-                                focusedLabelColor = NeonPurple,
-                                cursorColor = NeonPurple,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            singleLine = true
-                        )
-                    } else {
-                        // Single content input for other types
-                        OutlinedTextField(
+                        else -> ContentInput(
                             value = content,
                             onValueChange = { content = it },
-                            label = { Text(text = getInputLabel(selectedType)) },
-                            placeholder = { Text(text = getInputPlaceholder(selectedType)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NeonPurple,
-                                unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
-                                focusedLabelColor = NeonPurple,
-                                cursorColor = NeonPurple,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            singleLine = selectedType != CreateTagType.TEXT,
-                            maxLines = if (selectedType == CreateTagType.TEXT) 3 else 1
+                            type = selectedType,
+                            isMultiline = selectedType == CreateTagType.TEXT
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(28.dp))
 
-                    // Create Button
+                    // Create Button with neon effect
+                    val isFormValid = if (selectedType == CreateTagType.CONTACT) {
+                        contactName.isNotBlank() || contactPhone.isNotBlank() || contactEmail.isNotBlank()
+                    } else {
+                        content.isNotBlank()
+                    }
+
                     Button(
                         onClick = {
                             if (selectedType == CreateTagType.CONTACT) {
-                                if (contactName.isNotBlank() || contactPhone.isNotBlank() || contactEmail.isNotBlank()) {
-                                    isCreating = true
-                                    createContactTag(
-                                        repository = repository,
-                                        name = if (tagName.isNotBlank()) tagName else "Contact: ${contactName.take(20)}",
-                                        contactName = contactName,
-                                        contactPhone = contactPhone,
-                                        contactEmail = contactEmail,
-                                        onComplete = { success ->
-                                            isCreating = false
-                                            if (success) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "✅ Contact tag created successfully",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                onTagCreated()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    "❌ Failed to create contact tag",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
+                                createContactTag(
+                                    repository = repository,
+                                    name = if (tagName.isNotBlank()) tagName else "Contact: ${contactName.take(20)}",
+                                    contactName = contactName,
+                                    contactPhone = contactPhone,
+                                    contactEmail = contactEmail,
+                                    onComplete = { success ->
+                                        isCreating = false
+                                        if (success) {
+                                            Toast.makeText(
+                                                context,
+                                                "✅ Contact tag created",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            onTagCreated()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "❌ Failed to create tag",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-                                    )
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Please enter at least one contact field",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                    }
+                                )
                             } else {
-                                if (content.isNotBlank()) {
-                                    isCreating = true
-                                    createArtificialTag(
-                                        repository = repository,
-                                        name = if (tagName.isNotBlank()) tagName else getDefaultName(selectedType, content),
-                                        content = content,
-                                        type = selectedType,
-                                        onComplete = { success ->
-                                            isCreating = false
-                                            if (success) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "✅ Tag created successfully",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                onTagCreated()
-                                            } else {
-                                                Toast.makeText(
-                                                    context,
-                                                    "❌ Failed to create tag",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
+                                createArtificialTag(
+                                    repository = repository,
+                                    name = if (tagName.isNotBlank()) tagName else getDefaultName(selectedType, content),
+                                    content = content,
+                                    type = selectedType,
+                                    onComplete = { success ->
+                                        isCreating = false
+                                        if (success) {
+                                            Toast.makeText(
+                                                context,
+                                                "✅ Tag created",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            onTagCreated()
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                "❌ Failed to create tag",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-                                    )
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        "Please enter ${getInputLabel(selectedType).lowercase()}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                    }
+                                )
                             }
                         },
-                        enabled = !isCreating && (
-                                (selectedType == CreateTagType.CONTACT &&
-                                        (contactName.isNotBlank() || contactPhone.isNotBlank() || contactEmail.isNotBlank())) ||
-                                        (selectedType != CreateTagType.CONTACT && content.isNotBlank())
-                                ),
+                        enabled = !isCreating && isFormValid,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
+                            .height(52.dp)
+                            .shadow(
+                                elevation = if (isFormValid && !isCreating) 8.dp else 0.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                clip = false
+                            ),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonGreen,
+                            containerColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
                             contentColor = Color.Black,
                             disabledContainerColor = SurfaceGlow
                         )
                     ) {
                         if (isCreating) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp),
                                 color = Color.Black,
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text(
-                                text = "CREATE NFC TAG",
-                                fontSize = 16.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = Color.Black
+                                )
+                                Text(
+                                    text = "CREATE NFC TAG",
+                                    fontSize = 14.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    letterSpacing = 1.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -362,73 +350,302 @@ fun CreateTagScreen(
 }
 
 @Composable
-fun TypeCard(
+fun ModernTypeCard(
     emoji: String,
     title: String,
-    description: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "type_card")
+    val cardScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.02f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
     Card(
         modifier = Modifier
-            .width(90.dp)
-            .height(100.dp),
+            .width(88.dp)
+            .height(96.dp)
+            .then(if (isSelected) Modifier.scale(cardScale) else Modifier),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) SurfaceGlow else SurfaceDark
         ),
-        onClick = onClick
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 4.dp else 2.dp
+        )
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .background(
+                    if (isSelected) {
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                (if (title == "CONTACT") NeonGreen else NeonCyan).copy(alpha = 0.1f),
+                                Color.Transparent
+                            )
+                        )
+                    } else {
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Transparent)
+                        )
+                    }
+                )
         ) {
-            Text(
-                text = emoji,
-                fontSize = 24.sp
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                color = if (isSelected) NeonCyan else Color.White.copy(alpha = 0.7f)
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isSelected) NeonPurple else Color.White.copy(alpha = 0.5f),
-                fontSize = 8.sp,
-                textAlign = TextAlign.Center,
-                maxLines = 2
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = emoji,
+                    fontSize = 28.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    ),
+                    color = if (isSelected)
+                        (if (title == "CONTACT") NeonGreen else NeonCyan)
+                    else
+                        Color.White.copy(alpha = 0.6f),
+                    maxLines = 1
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun ContentInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    type: CreateTagType,
+    isMultiline: Boolean = false
+) {
+    val icon = when (type) {
+        CreateTagType.URL -> Icons.Default.Link
+        CreateTagType.TEXT -> Icons.Default.Description
+        CreateTagType.PHONE -> Icons.Default.Phone
+        CreateTagType.EMAIL -> Icons.Default.Email
+        else -> Icons.Default.Edit
+    }
+
+    val hint = when (type) {
+        CreateTagType.URL -> "https://example.com"
+        CreateTagType.TEXT -> "Enter your text here..."
+        CreateTagType.PHONE -> "+1 234 567 890"
+        CreateTagType.EMAIL -> "user@example.com"
+        else -> "Enter content"
+    }
+
+    val label = when (type) {
+        CreateTagType.URL -> "URL"
+        CreateTagType.TEXT -> "Text Content"
+        CreateTagType.PHONE -> "Phone Number"
+        CreateTagType.EMAIL -> "Email Address"
+        else -> "Content"
+    }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+        },
+        placeholder = {
+            Text(
+                hint,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = NeonPurple.copy(alpha = 0.7f),
+                modifier = Modifier.size(18.dp)
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = NeonPurple,
+            unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
+            focusedLabelColor = NeonPurple,
+            cursorColor = NeonPurple,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
+        ),
+        singleLine = !isMultiline,
+        minLines = if (isMultiline) 3 else 1,
+        maxLines = if (isMultiline) 5 else 1
+    )
+}
+
+@Composable
+fun ContactForm(
+    contactName: String,
+    onContactNameChange: (String) -> Unit,
+    contactPhone: String,
+    onContactPhoneChange: (String) -> Unit,
+    contactEmail: String,
+    onContactEmailChange: (String) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        OutlinedTextField(
+            value = contactName,
+            onValueChange = onContactNameChange,
+            label = {
+                Text(
+                    "Full Name",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            placeholder = {
+                Text(
+                    "John Doe",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = NeonGreen.copy(alpha = 0.7f),
+                    modifier = Modifier.size(18.dp)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = NeonGreen,
+                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
+                focusedLabelColor = NeonGreen,
+                cursorColor = NeonGreen,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            ),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = contactPhone,
+            onValueChange = onContactPhoneChange,
+            label = {
+                Text(
+                    "Phone Number",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            placeholder = {
+                Text(
+                    "+1 234 567 890",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Phone,
+                    contentDescription = null,
+                    tint = NeonGreen.copy(alpha = 0.7f),
+                    modifier = Modifier.size(18.dp)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = NeonGreen,
+                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
+                focusedLabelColor = NeonGreen,
+                cursorColor = NeonGreen,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            ),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = contactEmail,
+            onValueChange = onContactEmailChange,
+            label = {
+                Text(
+                    "Email Address",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            placeholder = {
+                Text(
+                    "john@example.com",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    tint = NeonGreen.copy(alpha = 0.7f),
+                    modifier = Modifier.size(18.dp)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = NeonGreen,
+                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
+                focusedLabelColor = NeonGreen,
+                cursorColor = NeonGreen,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            ),
+            singleLine = true
+        )
     }
 }
 
 enum class CreateTagType {
     URL, TEXT, PHONE, EMAIL, CONTACT
-}
-
-fun getInputLabel(type: CreateTagType): String {
-    return when (type) {
-        CreateTagType.URL -> "URL"
-        CreateTagType.TEXT -> "Text Content"
-        CreateTagType.PHONE -> "Phone Number"
-        CreateTagType.EMAIL -> "Email Address"
-        CreateTagType.CONTACT -> "Contact Information"
-    }
-}
-
-fun getInputPlaceholder(type: CreateTagType): String {
-    return when (type) {
-        CreateTagType.URL -> "https://example.com"
-        CreateTagType.TEXT -> "Enter your text here..."
-        CreateTagType.PHONE -> "+1234567890"
-        CreateTagType.EMAIL -> "user@example.com"
-        CreateTagType.CONTACT -> "Multiple fields"
-    }
 }
 
 fun getDefaultName(type: CreateTagType, content: String): String {
