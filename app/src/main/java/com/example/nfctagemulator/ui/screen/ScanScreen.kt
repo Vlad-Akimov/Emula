@@ -211,15 +211,6 @@ fun ScanScreen(
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Note about creating tags
-            Text(
-                text = "Need a new tag? Tap CREATE below",
-                fontSize = 12.sp,
-                color = Color.White.copy(alpha = 0.5f)
-            )
         }
     }
 }

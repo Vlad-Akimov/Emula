@@ -5,16 +5,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.repository.TagRepository
 import com.example.nfctagemulator.nfc.emulator.TagEmulator
@@ -24,6 +21,12 @@ import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.screen.SavedTagsScreen
 import com.example.nfctagemulator.ui.screen.ScanScreen
 import com.example.nfctagemulator.ui.theme.NfcTagEmulatorTheme
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -52,72 +55,81 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation() {
         val context = LocalContext.current
-        val navController = rememberNavController()
+        val pagerState = rememberPagerState(
+            initialPage = 0,
+            pageCount = { 3 }
+        )
+        val coroutineScope = rememberCoroutineScope()
 
         var selectedTab by remember { mutableStateOf(0) }
 
+        // Sync tab with pager
+        LaunchedEffect(pagerState.currentPage) {
+            selectedTab = pagerState.currentPage
+        }
+
         Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            containerColor = Color.Transparent,
             bottomBar = {
                 BottomNavigationBar(
                     selectedTab = selectedTab,
                     onTabSelected = { tabIndex ->
                         selectedTab = tabIndex
-                        when (tabIndex) {
-                            0 -> navController.navigate("saved") {
-                                popUpTo("saved") { inclusive = true }
-                            }
-                            1 -> navController.navigate("scan") {
-                                popUpTo("saved") { inclusive = false }
-                            }
-                            2 -> navController.navigate("create") {
-                                popUpTo("saved") { inclusive = false }
-                            }
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(tabIndex)
                         }
                     }
                 )
             }
         ) { paddingValues ->
-            NavHost(
-                navController = navController,
-                startDestination = "saved",
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                composable("saved") {
-                    SavedTagsScreen(
-                        repository = repository,
-                        emulator = emulator,
-                        isEmulating = isEmulating.value,
-                        onEmulationStateChanged = { newState ->
-                            isEmulating.value = newState
-                            updateNfcState()
-                        }
-                    )
-                }
-
-                composable("scan") {
-                    ScanScreen(
-                        repository = repository,
-                        scannedTag = scannedTag.value,
-                        onNavigateToCreate = {
-                            navController.navigate("create")
-                        }
-                    )
-                }
-
-                composable("create") {
-                    CreateTagScreen(
-                        repository = repository,
-                        onBackClick = {
-                            navController.popBackStack()
-                        },
-                        onTagCreated = {
-                            navController.popBackStack()
-                            Toast.makeText(context, "Tag created successfully", Toast.LENGTH_SHORT).show()
-                        }
-                    )
+                    .padding(paddingValues),
+                pageSpacing = 0.dp,
+                userScrollEnabled = true,
+                beyondViewportPageCount = 1
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        SavedTagsScreen(
+                            repository = repository,
+                            emulator = emulator,
+                            isEmulating = isEmulating.value,
+                            onEmulationStateChanged = { newState ->
+                                isEmulating.value = newState
+                                updateNfcState()
+                            }
+                        )
+                    }
+                    1 -> {
+                        ScanScreen(
+                            repository = repository,
+                            scannedTag = scannedTag.value,
+                            onNavigateToCreate = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(2)
+                                }
+                            }
+                        )
+                    }
+                    2 -> {
+                        CreateTagScreen(
+                            repository = repository,
+                            onBackClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(1)
+                                }
+                            },
+                            onTagCreated = {
+                                Toast.makeText(context, "Tag created successfully", Toast.LENGTH_SHORT).show()
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(0)
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
