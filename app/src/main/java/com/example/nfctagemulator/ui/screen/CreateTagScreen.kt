@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -80,19 +81,9 @@ fun CreateTagScreen(
             // Header with back button
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = NeonCyan
-                    )
-                }
                 Text(
                     text = "CREATE TAG",
                     style = MaterialTheme.typography.headlineSmall.copy(
@@ -106,7 +97,6 @@ fun CreateTagScreen(
                         clip = false
                     )
                 )
-                Spacer(modifier = Modifier.width(40.dp))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
