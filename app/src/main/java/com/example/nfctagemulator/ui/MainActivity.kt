@@ -23,7 +23,6 @@ import com.example.nfctagemulator.ui.screen.ScanScreen
 import com.example.nfctagemulator.ui.theme.NfcTagEmulatorTheme
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
@@ -35,6 +34,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var emulator: TagEmulator
     private var scannedTag = mutableStateOf<TagData?>(null)
     private var isEmulating = mutableStateOf(false)
+    // Add a refresh trigger for SavedTagsScreen
+    private var refreshSavedTags = mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +67,10 @@ class MainActivity : ComponentActivity() {
         // Sync tab with pager
         LaunchedEffect(pagerState.currentPage) {
             selectedTab = pagerState.currentPage
+            // When returning to SavedTagsScreen (tab 0), trigger refresh
+            if (pagerState.currentPage == 0) {
+                refreshSavedTags.value++
+            }
         }
 
         Scaffold(
@@ -100,7 +105,8 @@ class MainActivity : ComponentActivity() {
                             onEmulationStateChanged = { newState ->
                                 isEmulating.value = newState
                                 updateNfcState()
-                            }
+                            },
+                            refreshTrigger = refreshSavedTags.value
                         )
                     }
                     1 -> {
@@ -124,6 +130,8 @@ class MainActivity : ComponentActivity() {
                             },
                             onTagCreated = {
                                 Toast.makeText(context, "Tag created successfully", Toast.LENGTH_SHORT).show()
+                                // Trigger refresh when returning to saved tags
+                                refreshSavedTags.value++
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(0)
                                 }
@@ -172,6 +180,8 @@ class MainActivity : ComponentActivity() {
             } else {
                 repository.saveTag(it)
                 scannedTag.value = it
+                // Trigger refresh for saved tags screen
+                refreshSavedTags.value++
                 Toast.makeText(this, "✅ ${it.name}", Toast.LENGTH_SHORT).show()
             }
         }

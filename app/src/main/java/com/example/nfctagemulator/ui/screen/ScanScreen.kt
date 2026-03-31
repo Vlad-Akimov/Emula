@@ -37,7 +37,6 @@ fun ScanScreen(
 ) {
     val context = LocalContext.current
     var lastScannedUid by remember { mutableStateOf<String?>(null) }
-    var scanCount by remember { mutableStateOf(0) }
     var isScanning by remember { mutableStateOf(true) }
     var localScannedTag by remember { mutableStateOf(scannedTag) }
 
@@ -46,7 +45,6 @@ fun ScanScreen(
             if (tag.uid != lastScannedUid) {
                 lastScannedUid = tag.uid
                 localScannedTag = tag
-                scanCount++
                 isScanning = false
 
                 Toast.makeText(
@@ -337,21 +335,6 @@ fun ScanScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.6f),
                             textAlign = TextAlign.Center
-                        )
-                    }
-
-                    if (scanCount > 0) {
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Divider(
-                            color = Color.White.copy(alpha = 0.1f),
-                            modifier = Modifier.padding(horizontal = 40.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "${scanCount} scan${if (scanCount > 1) "s" else ""} completed",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.4f),
-                            fontFamily = FontFamily.Monospace
                         )
                     }
                 }

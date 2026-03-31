@@ -34,7 +34,8 @@ fun SavedTagsScreen(
     repository: TagRepository,
     emulator: TagEmulator,
     isEmulating: Boolean,
-    onEmulationStateChanged: (Boolean) -> Unit
+    onEmulationStateChanged: (Boolean) -> Unit,
+    refreshTrigger: Int = 0 // Add refresh trigger parameter
 ) {
     val context = LocalContext.current
 
@@ -46,7 +47,14 @@ fun SavedTagsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var tagToDelete by remember { mutableStateOf<TagData?>(null) }
 
-    LaunchedEffect(Unit) {
+    // Refresh tags when refreshTrigger changes or when entering the screen
+    LaunchedEffect(refreshTrigger) {
+        tags = repository.getAllTags()
+        emulatingUid = emulator.getEmulatingTagUid()
+    }
+
+    // Also refresh when emulation state changes (in case name was updated)
+    LaunchedEffect(isEmulating) {
         tags = repository.getAllTags()
         emulatingUid = emulator.getEmulatingTagUid()
     }
