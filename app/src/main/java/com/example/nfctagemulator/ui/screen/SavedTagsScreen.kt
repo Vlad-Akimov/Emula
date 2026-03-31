@@ -1,6 +1,8 @@
 package com.example.nfctagemulator.ui.screen
 
 import android.widget.Toast
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,9 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,7 +28,7 @@ import com.example.nfctagemulator.nfc.emulator.TagEmulator
 import com.example.nfctagemulator.ui.components.TagCard
 import com.example.nfctagemulator.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun SavedTagsScreen(
     repository: TagRepository,
@@ -52,7 +56,7 @@ fun SavedTagsScreen(
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(BackgroundDark, SurfaceDark),
+                    colors = listOf(BackgroundDark, SurfaceDark, Color(0xFF0A0A12)),
                     startY = 0f,
                     endY = 1000f
                 )
@@ -61,48 +65,84 @@ fun SavedTagsScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Header
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = SurfaceGlow
-                )
-            ) {
-                Row(
+            // Animated header with status
+            AnimatedContent(
+                targetState = isEmulating,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(300)) +
+                            slideInVertically(animationSpec = tween(300)) togetherWith
+                            fadeOut(animationSpec = tween(300)) +
+                            slideOutVertically(animationSpec = tween(300))
+                },
+                label = "header"
+            ) { emulating ->
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "SAVED TAGS",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = NeonCyan
+                        .padding(6.dp)
+                        .shadow(
+                            elevation = if (emulating) 12.dp else 4.dp,
+                            shape = RoundedCornerShape(8.dp),
+                            clip = false
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (emulating) SurfaceGlow else SurfaceDark
                     )
-
-                    // Status indicator
+                ) {
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
+                        Column {
+                            Text(
+                                text = "SAVED TAGS",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = NeonCyan,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "${tags.size} tag${if (tags.size != 1) "s" else ""} available",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.5f),
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        // Status indicator with pulsing effect
+                        Surface(
+                            shape = RoundedCornerShape(50.dp),
+                            color = if (emulating) NeonGreen.copy(alpha = 0.15f) else NeonCyan.copy(alpha = 0.15f),
                             modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (isEmulating) NeonGreen else NeonCyan
+                                .clip(RoundedCornerShape(50.dp))
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (emulating) NeonGreen else NeonCyan
+                                        )
                                 )
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (isEmulating) "ACTIVE" else "READY",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (isEmulating) NeonGreen else NeonCyan,
-                            fontSize = 12.sp
-                        )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = if (emulating) "EMULATING" else "READY",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (emulating) NeonGreen else NeonCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -116,32 +156,45 @@ fun SavedTagsScreen(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(
-                            text = "📭",
-                            fontSize = 64.sp
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Surface(
+                            shape = CircleShape,
+                            color = SurfaceGlow,
+                            modifier = Modifier.size(100.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "🏷️",
+                                    fontSize = 48.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
                             text = "No saved tags",
                             style = MaterialTheme.typography.titleLarge,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = Color.White.copy(alpha = 0.7f),
+                            fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Scan a physical NFC tag or create a new one",
+                            text = "Scan a physical NFC tag\nor create a new one",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.5f),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            lineHeight = 22.sp
                         )
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(tags) { tag ->
+                    items(
+                        items = tags,
+                        key = { it.uid ?: it.name }
+                    ) { tag ->
                         TagCard(
                             tag = tag,
                             isEmulating = tag.uid == emulatingUid,
@@ -182,12 +235,17 @@ fun SavedTagsScreen(
             titleContentColor = NeonCyan,
             textContentColor = Color.White,
             shape = RoundedCornerShape(24.dp),
-            title = { Text("Rename Tag") },
+            title = {
+                Text(
+                    "Rename Tag",
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 OutlinedTextField(
                     value = newName,
                     onValueChange = { newName = it },
-                    label = { Text("Tag name") },
+                    label = { Text("Tag name", color = NeonCyan) },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = NeonCyan,
@@ -223,7 +281,7 @@ fun SavedTagsScreen(
                         contentColor = NeonCyan
                     )
                 ) {
-                    Text("SAVE")
+                    Text("SAVE", fontWeight = FontWeight.Medium)
                 }
             },
             dismissButton = {
@@ -247,7 +305,13 @@ fun SavedTagsScreen(
             titleContentColor = Color.Red,
             textContentColor = Color.White,
             shape = RoundedCornerShape(24.dp),
-            title = { Text("Delete Tag") },
+            title = {
+                Text(
+                    "Delete Tag",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Red
+                )
+            },
             text = {
                 Text(
                     "Are you sure you want to delete \"${tagToDelete?.name}\"?",
@@ -275,7 +339,7 @@ fun SavedTagsScreen(
                         contentColor = Color.Red
                     )
                 ) {
-                    Text("DELETE")
+                    Text("DELETE", fontWeight = FontWeight.Medium)
                 }
             },
             dismissButton = {

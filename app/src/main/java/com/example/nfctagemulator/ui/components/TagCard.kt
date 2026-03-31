@@ -4,12 +4,16 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,35 +40,64 @@ fun TagCard(
         label = "glow"
     )
 
+    val borderAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "border"
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
-                elevation = if (isEmulating) 12.dp else 4.dp,
-                shape = RoundedCornerShape(24.dp)
+                elevation = if (isEmulating) 16.dp else 8.dp,
+                shape = RoundedCornerShape(24.dp),
+                clip = false
             )
-            .clip(RoundedCornerShape(24.dp)),
+            .clip(RoundedCornerShape(24.dp))
+            .drawBehind {
+                if (isEmulating) {
+                    val strokeWidth = 2.dp.toPx()
+                    for (i in 0..1) {
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    NeonCyan.copy(alpha = glowAlpha * 0.5f),
+                                    Color.Transparent
+                                ),
+                                center = Offset(size.width / 2, size.height / 2),
+                                radius = size.minDimension / 1.5f
+                            ),
+                            radius = size.minDimension / 1.5f + (i * 4).dp.toPx(),
+                            center = Offset(size.width / 2, size.height / 2)
+                        )
+                    }
+                }
+            },
         colors = CardDefaults.cardColors(
             containerColor = if (isEmulating) SurfaceGlow else SurfaceDark
         )
     ) {
-        // Добавляем градиентную границу вручную
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = if (isEmulating)
-                            listOf(NeonCyan, NeonPurple, NeonCyan)
+                            listOf(NeonCyan, NeonPurple, NeonPink, NeonCyan)
                         else
-                            listOf(NeonCyan.copy(alpha = 0.3f), NeonPurple.copy(alpha = 0.3f))
+                            listOf(NeonCyan.copy(alpha = 0.2f), NeonPurple.copy(alpha = 0.2f))
                     ),
                     shape = RoundedCornerShape(24.dp)
                 )
-                .padding(1.dp) // Толщина границы
+                .padding(1.5.dp)
                 .background(
                     color = if (isEmulating) SurfaceGlow else SurfaceDark,
-                    shape = RoundedCornerShape(23.dp)
+                    shape = RoundedCornerShape(22.5.dp)
                 )
         ) {
             Row(
@@ -74,7 +107,7 @@ fun TagCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tag info
+                // Tag icon and info
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
@@ -83,18 +116,24 @@ fun TagCard(
 
                     // Text info
                     Column {
-                        Text(
-                            text = tag.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (isEmulating) NeonCyan else Color.White,
-                            fontSize = 16.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = tag.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = if (isEmulating) NeonCyan else Color.White,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                        }
                         Text(
                             text = formatUid(tag.uid),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.5f),
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp
+                            fontSize = 11.sp
                         )
                         // Show contact preview if it's a contact
                         if (tag.type == TagType.NDEF_VCARD) {
@@ -107,7 +146,8 @@ fun TagCard(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = NeonPurple,
                                 fontSize = 10.sp,
-                                maxLines = 1
+                                maxLines = 1,
+                                modifier = Modifier.padding(top = 2.dp)
                             )
                         }
                     }
@@ -116,62 +156,69 @@ fun TagCard(
                 // Actions
                 Row {
                     // Rename button
-                    Button(
+                    IconButton(
                         onClick = { onRenameClick(tag) },
-                        modifier = Modifier
-                            .height(36.dp)
-                            .width(36.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = NeonCyan.copy(alpha = 0.1f),
+                        modifier = Modifier.size(36.dp),
+                        colors = IconButtonDefaults.iconButtonColors(
                             contentColor = NeonCyan
-                        ),
-                        contentPadding = PaddingValues(0.dp)
+                        )
                     ) {
-                        Text("✏️", fontSize = 14.sp)
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                            contentDescription = "Rename",
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
-
-                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Delete button
-                    Button(
+                    IconButton(
                         onClick = { onDeleteClick(tag) },
-                        modifier = Modifier
-                            .height(36.dp)
-                            .width(36.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red.copy(alpha = 0.1f),
-                            contentColor = Color.Red
-                        ),
-                        contentPadding = PaddingValues(0.dp)
+                        modifier = Modifier.size(36.dp),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = Color.Red.copy(alpha = 0.7f)
+                        )
                     ) {
-                        Text("🗑️", fontSize = 14.sp)
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
 
                     // Emulate button
                     Button(
                         onClick = { onEmulateClick(tag) },
                         modifier = Modifier
                             .height(36.dp)
-                            .widthIn(min = 80.dp),
+                            .widthIn(min = 88.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isEmulating)
-                                NeonGreen.copy(alpha = 0.2f)
+                                NeonGreen.copy(alpha = 0.15f)
                             else
-                                NeonCyan.copy(alpha = 0.2f),
+                                NeonCyan.copy(alpha = 0.15f),
                             contentColor = if (isEmulating) NeonGreen else NeonCyan
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
-                        Text(
-                            text = if (isEmulating) "⏹️ STOP" else "▶️ EMULATE",
-                            fontSize = 10.sp,
-                            maxLines = 1
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = if (isEmulating) "⏹️" else "▶️",
+                                fontSize = 12.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (isEmulating) "STOP" else "EMULATE",
+                                fontSize = 10.sp,
+                                maxLines = 1,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
