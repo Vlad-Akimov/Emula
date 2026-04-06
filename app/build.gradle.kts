@@ -65,7 +65,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
 
     // Navigation Compose
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.9.7")
 
     // Foundation for swipe gestures
     implementation("androidx.compose.foundation:foundation:1.6.7")
