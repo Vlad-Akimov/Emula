@@ -155,21 +155,6 @@ fun TagCard(
 
                 // Actions
                 Row {
-                    // Rename button
-                    IconButton(
-                        onClick = { onRenameClick(tag) },
-                        modifier = Modifier.size(36.dp),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = NeonCyan
-                        )
-                    ) {
-                        Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.Edit,
-                            contentDescription = "Rename",
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-
                     // Delete button
                     IconButton(
                         onClick = { onDeleteClick(tag) },
@@ -181,6 +166,21 @@ fun TagCard(
                         Icon(
                             imageVector = androidx.compose.material.icons.Icons.Default.Delete,
                             contentDescription = "Delete",
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    // Rename button
+                    IconButton(
+                        onClick = { onRenameClick(tag) },
+                        modifier = Modifier.size(36.dp),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = NeonCyan
+                        )
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Edit,
+                            contentDescription = "Rename",
                             modifier = Modifier.size(22.dp)
                         )
                     }
