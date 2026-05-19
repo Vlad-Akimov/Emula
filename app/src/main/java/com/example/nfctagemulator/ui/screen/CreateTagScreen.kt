@@ -53,6 +53,20 @@ fun CreateTagScreen(
     var selectedType by remember { mutableStateOf(CreateTagType.URL) }
     var isCreating by remember { mutableStateOf(false) }
 
+    // Function to clear all form fields
+    fun clearForm() {
+        tagName = ""
+        content = ""
+        contactName = ""
+        contactPhone = ""
+        contactEmail = ""
+    }
+
+    // Clear content when switching tag types
+    LaunchedEffect(selectedType) {
+        content = ""
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -219,6 +233,7 @@ fun CreateTagScreen(
                                         isCreating = false
                                         if (success) {
                                             Toast.makeText(context, "✅ Contact tag created", Toast.LENGTH_SHORT).show()
+                                            clearForm()
                                             onTagCreated()
                                         } else {
                                             Toast.makeText(context, "❌ Failed to create tag", Toast.LENGTH_SHORT).show()
@@ -235,6 +250,7 @@ fun CreateTagScreen(
                                         isCreating = false
                                         if (success) {
                                             Toast.makeText(context, "✅ Tag created", Toast.LENGTH_SHORT).show()
+                                            clearForm()
                                             onTagCreated()
                                         } else {
                                             Toast.makeText(context, "❌ Failed to create tag", Toast.LENGTH_SHORT).show()
