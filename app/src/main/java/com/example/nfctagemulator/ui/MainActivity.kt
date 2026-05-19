@@ -177,6 +177,15 @@ class MainActivity : ComponentActivity() {
         reader.disable(this)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop emulation when app is closed
+        if (emulator.isEmulating()) {
+            emulator.setEmulatingTag(null)
+            isEmulating.value = false
+        }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 

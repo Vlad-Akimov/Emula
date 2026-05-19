@@ -33,4 +33,11 @@ class TagEmulator(private val context: Context) {
     fun isEmulating(): Boolean {
         return getEmulatingTagUid() != null
     }
+
+    fun stopEmulation() {
+        if (isEmulating()) {
+            setEmulatingTag(null)
+            Log.d("TagEmulator", "Emulation forcefully stopped")
+        }
+    }
 }
