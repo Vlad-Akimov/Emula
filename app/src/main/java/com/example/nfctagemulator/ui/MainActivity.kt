@@ -1,10 +1,12 @@
 package com.example.nfctagemulator.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,8 +25,6 @@ import com.example.nfctagemulator.ui.screen.ScanScreen
 import com.example.nfctagemulator.ui.theme.NfcTagEmulatorTheme
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -34,11 +34,29 @@ class MainActivity : ComponentActivity() {
     private lateinit var emulator: TagEmulator
     private var scannedTag = mutableStateOf<TagData?>(null)
     private var isEmulating = mutableStateOf(false)
-    // Add a refresh trigger for SavedTagsScreen
     private var refreshSavedTags = mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Enable edge-to-edge display
+        enableEdgeToEdge()
+
+        // Make status bar transparent with proper insets handling
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.apply {
+                statusBarColor = android.graphics.Color.TRANSPARENT
+                // For Android 10 and above, we can make status bar icons light
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    setDecorFitsSystemWindows(false)
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // Use light status bar icons (white) because background is dark
+                    decorView.systemUiVisibility = decorView.systemUiVisibility or
+                            android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() // Remove light flag for dark background
+                }
+            }
+        }
 
         reader = NfcReader(this)
         repository = TagRepository(this)
@@ -64,10 +82,8 @@ class MainActivity : ComponentActivity() {
 
         var selectedTab by remember { mutableStateOf(0) }
 
-        // Sync tab with pager
         LaunchedEffect(pagerState.currentPage) {
             selectedTab = pagerState.currentPage
-            // When returning to SavedTagsScreen (tab 0), trigger refresh
             if (pagerState.currentPage == 0) {
                 refreshSavedTags.value++
             }
@@ -75,6 +91,13 @@ class MainActivity : ComponentActivity() {
 
         Scaffold(
             containerColor = Color.Transparent,
+            // Remove top insets to avoid white bar, keep bottom insets for navigation
+            contentWindowInsets = WindowInsets(
+                left = 0,
+                top = 0,
+                right = 0,
+                bottom = 0
+            ),
             bottomBar = {
                 BottomNavigationBar(
                     selectedTab = selectedTab,
@@ -130,7 +153,6 @@ class MainActivity : ComponentActivity() {
                             },
                             onTagCreated = {
                                 Toast.makeText(context, "Tag created successfully", Toast.LENGTH_SHORT).show()
-                                // Trigger refresh when returning to saved tags
                                 refreshSavedTags.value++
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(0)
@@ -180,7 +202,6 @@ class MainActivity : ComponentActivity() {
             } else {
                 repository.saveTag(it)
                 scannedTag.value = it
-                // Trigger refresh for saved tags screen
                 refreshSavedTags.value++
                 Toast.makeText(this, "✅ ${it.name}", Toast.LENGTH_SHORT).show()
             }

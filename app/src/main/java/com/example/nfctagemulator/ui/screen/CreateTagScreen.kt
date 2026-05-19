@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,10 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +41,9 @@ fun CreateTagScreen(
     onTagCreated: () -> Unit
 ) {
     val context = LocalContext.current
+    val dimens = getAdaptiveDimens()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
     var tagName by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
@@ -50,17 +52,6 @@ fun CreateTagScreen(
     var contactEmail by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(CreateTagType.URL) }
     var isCreating by remember { mutableStateOf(false) }
-
-    val infiniteTransition = rememberInfiniteTransition(label = "create")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow"
-    )
 
     Box(
         modifier = Modifier
@@ -74,37 +65,27 @@ fun CreateTagScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .statusBarsPadding()
+                .padding(dimens.paddingLarge.dp)
                 .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header with back button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "CREATE TAG",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontFamily = FontFamily.Monospace,
-                        letterSpacing = 2.sp
-                    ),
-                    color = NeonCyan,
-                    modifier = Modifier.shadow(
-                        elevation = 4.dp,
-                        shape = RoundedCornerShape(8.dp),
-                        clip = false
-                    )
-                )
-            }
+            // Header
+            Text(
+                text = "CREATE TAG",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = FontFamily.Monospace,
+                    letterSpacing = 2.sp
+                ),
+                color = NeonCyan,
+                fontSize = dimens.headerFontSize.sp,
+                modifier = Modifier.padding(bottom = dimens.paddingMedium.dp)
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Type selection row with modern cards
+            // Type selection
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(dimens.paddingSmall.dp)
             ) {
                 val types = listOf(
                     CreateTagType.URL to "🔗",
@@ -114,7 +95,7 @@ fun CreateTagScreen(
                     CreateTagType.CONTACT to "👤"
                 )
                 items(types) { (type, emoji) ->
-                    ModernTypeCard(
+                    AdaptiveTypeCard(
                         emoji = emoji,
                         title = type.name,
                         isSelected = selectedType == type,
@@ -123,9 +104,9 @@ fun CreateTagScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(dimens.paddingMedium.dp))
 
-            // Input Form with GlowCard
+            // Input Form
             GlowCard(
                 modifier = Modifier.fillMaxWidth(),
                 gradientColors = listOf(
@@ -139,12 +120,12 @@ fun CreateTagScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp)
+                        .padding(dimens.paddingMedium.dp)
                 ) {
-                    // Section header with animated dot
+                    // Section header
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 20.dp)
+                        modifier = Modifier.padding(bottom = dimens.paddingMedium.dp)
                     ) {
                         Box(
                             modifier = Modifier
@@ -161,7 +142,8 @@ fun CreateTagScreen(
                                 fontFamily = FontFamily.Monospace,
                                 letterSpacing = 1.sp
                             ),
-                            color = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan
+                            color = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
+                            fontSize = dimens.bodyFontSize.sp
                         )
                     }
 
@@ -169,32 +151,18 @@ fun CreateTagScreen(
                     OutlinedTextField(
                         value = tagName,
                         onValueChange = { tagName = it },
-                        label = {
-                            Text(
-                                "Tag Name",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontFamily = FontFamily.Monospace
-                                )
-                            )
-                        },
-                        placeholder = {
-                            Text(
-                                "My NFC Tag",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontFamily = FontFamily.Monospace
-                                )
-                            )
-                        },
+                        label = { Text("Tag Name", fontFamily = FontFamily.Monospace) },
+                        placeholder = { Text("My NFC Tag", fontFamily = FontFamily.Monospace) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Tag,
                                 contentDescription = null,
                                 tint = NeonCyan.copy(alpha = 0.7f),
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(dimens.iconSize.dp)
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
                             unfocusedBorderColor = (if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan).copy(alpha = 0.3f),
@@ -205,14 +173,15 @@ fun CreateTagScreen(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent
                         ),
-                        singleLine = true
+                        singleLine = !isLandscape,
+                        textStyle = LocalTextStyle.current.copy(fontSize = dimens.bodyFontSize.sp)
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(dimens.paddingMedium.dp))
 
-                    // Dynamic content based on selected type
+                    // Dynamic content
                     when (selectedType) {
-                        CreateTagType.CONTACT -> ContactForm(
+                        CreateTagType.CONTACT -> AdaptiveContactForm(
                             contactName = contactName,
                             onContactNameChange = { contactName = it },
                             contactPhone = contactPhone,
@@ -220,17 +189,17 @@ fun CreateTagScreen(
                             contactEmail = contactEmail,
                             onContactEmailChange = { contactEmail = it }
                         )
-                        else -> ContentInput(
+                        else -> AdaptiveContentInput(
                             value = content,
                             onValueChange = { content = it },
                             type = selectedType,
-                            isMultiline = selectedType == CreateTagType.TEXT
+                            isMultiline = selectedType == CreateTagType.TEXT && !isLandscape
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(dimens.paddingLarge.dp))
 
-                    // Create Button with neon effect
+                    // Create Button
                     val isFormValid = if (selectedType == CreateTagType.CONTACT) {
                         contactName.isNotBlank() || contactPhone.isNotBlank() || contactEmail.isNotBlank()
                     } else {
@@ -249,18 +218,10 @@ fun CreateTagScreen(
                                     onComplete = { success ->
                                         isCreating = false
                                         if (success) {
-                                            Toast.makeText(
-                                                context,
-                                                "✅ Contact tag created",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(context, "✅ Contact tag created", Toast.LENGTH_SHORT).show()
                                             onTagCreated()
                                         } else {
-                                            Toast.makeText(
-                                                context,
-                                                "❌ Failed to create tag",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(context, "❌ Failed to create tag", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 )
@@ -273,18 +234,10 @@ fun CreateTagScreen(
                                     onComplete = { success ->
                                         isCreating = false
                                         if (success) {
-                                            Toast.makeText(
-                                                context,
-                                                "✅ Tag created",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(context, "✅ Tag created", Toast.LENGTH_SHORT).show()
                                             onTagCreated()
                                         } else {
-                                            Toast.makeText(
-                                                context,
-                                                "❌ Failed to create tag",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(context, "❌ Failed to create tag", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 )
@@ -293,13 +246,13 @@ fun CreateTagScreen(
                         enabled = !isCreating && isFormValid,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(dimens.buttonHeight.dp)
                             .shadow(
                                 elevation = if (isFormValid && !isCreating) 8.dp else 0.dp,
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
                                 clip = false
                             ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (selectedType == CreateTagType.CONTACT) NeonGreen else NeonCyan,
                             contentColor = Color.Black,
@@ -320,12 +273,12 @@ fun CreateTagScreen(
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
+                                    modifier = Modifier.size(dimens.iconSize.dp),
                                     tint = Color.Black
                                 )
                                 Text(
-                                    text = "CREATE NFC TAG",
-                                    fontSize = 14.sp,
+                                    text = if (isLandscape) "CREATE" else "CREATE NFC TAG",
+                                    fontSize = if (isLandscape) dimens.bodyFontSize.sp else (dimens.bodyFontSize + 2).sp,
                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace,
                                     letterSpacing = 1.sp
@@ -340,29 +293,23 @@ fun CreateTagScreen(
 }
 
 @Composable
-fun ModernTypeCard(
+fun AdaptiveTypeCard(
     emoji: String,
     title: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "type_card")
-    val cardScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.02f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
+    val dimens = getAdaptiveDimens()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    val cardWidth = if (isLandscape) 72.dp else 88.dp
+    val cardHeight = if (isLandscape) 80.dp else 96.dp
 
     Card(
         modifier = Modifier
-            .width(88.dp)
-            .height(96.dp)
-            .then(if (isSelected) Modifier.scale(cardScale) else Modifier),
-        shape = RoundedCornerShape(16.dp),
+            .width(cardWidth)
+            .height(cardHeight),
+        shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) SurfaceGlow else SurfaceDark
         ),
@@ -382,30 +329,26 @@ fun ModernTypeCard(
                                 Color.Transparent
                             )
                         )
-                    } else {
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Transparent)
-                        )
-                    }
+                    } else Brush.verticalGradient(colors = listOf(Color.Transparent, Color.Transparent))
                 )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
+                    .padding(dimens.paddingSmall.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = emoji,
-                    fontSize = 28.sp
+                    fontSize = if (isLandscape) 20.sp else 28.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = title,
+                    text = if (isLandscape && title.length > 4) title.take(3) else title,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontFamily = FontFamily.Monospace,
-                        fontSize = 11.sp
+                        fontSize = if (isLandscape) 9.sp else 11.sp
                     ),
                     color = if (isSelected)
                         (if (title == "CONTACT") NeonGreen else NeonCyan)
@@ -419,12 +362,13 @@ fun ModernTypeCard(
 }
 
 @Composable
-fun ContentInput(
+fun AdaptiveContentInput(
     value: String,
     onValueChange: (String) -> Unit,
     type: CreateTagType,
     isMultiline: Boolean = false
 ) {
+    val dimens = getAdaptiveDimens()
     val icon = when (type) {
         CreateTagType.URL -> Icons.Default.Link
         CreateTagType.TEXT -> Icons.Default.Description
@@ -452,32 +396,18 @@ fun ContentInput(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = {
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-        },
-        placeholder = {
-            Text(
-                hint,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-        },
+        label = { Text(label, fontFamily = FontFamily.Monospace) },
+        placeholder = { Text(hint, fontFamily = FontFamily.Monospace) },
         leadingIcon = {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = NeonPurple.copy(alpha = 0.7f),
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(dimens.iconSize.dp)
             )
         },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = NeonPurple,
             unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
@@ -490,12 +420,13 @@ fun ContentInput(
         ),
         singleLine = !isMultiline,
         minLines = if (isMultiline) 3 else 1,
-        maxLines = if (isMultiline) 5 else 1
+        maxLines = if (isMultiline) 5 else 1,
+        textStyle = LocalTextStyle.current.copy(fontSize = dimens.bodyFontSize.sp)
     )
 }
 
 @Composable
-fun ContactForm(
+fun AdaptiveContactForm(
     contactName: String,
     onContactNameChange: (String) -> Unit,
     contactPhone: String,
@@ -503,135 +434,115 @@ fun ContactForm(
     contactEmail: String,
     onContactEmailChange: (String) -> Unit
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        OutlinedTextField(
-            value = contactName,
-            onValueChange = onContactNameChange,
-            label = {
-                Text(
-                    "Full Name",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            placeholder = {
-                Text(
-                    "John Doe",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = NeonGreen.copy(alpha = 0.7f),
-                    modifier = Modifier.size(18.dp)
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = NeonGreen,
-                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
-                focusedLabelColor = NeonGreen,
-                cursorColor = NeonGreen,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
-            ),
-            singleLine = true
-        )
+    val dimens = getAdaptiveDimens()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-        OutlinedTextField(
-            value = contactPhone,
-            onValueChange = onContactPhoneChange,
-            label = {
-                Text(
-                    "Phone Number",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            placeholder = {
-                Text(
-                    "+1 234 567 890",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = null,
-                    tint = NeonGreen.copy(alpha = 0.7f),
-                    modifier = Modifier.size(18.dp)
-                )
-            },
+    if (isLandscape) {
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = NeonGreen,
-                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
-                focusedLabelColor = NeonGreen,
-                cursorColor = NeonGreen,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
-            ),
-            singleLine = true
-        )
-
-        OutlinedTextField(
+            horizontalArrangement = Arrangement.spacedBy(dimens.paddingSmall.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                ContactField(
+                    value = contactName,
+                    onValueChange = onContactNameChange,
+                    label = "Full Name",
+                    icon = Icons.Default.Person,
+                    iconColor = NeonGreen
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                ContactField(
+                    value = contactPhone,
+                    onValueChange = onContactPhoneChange,
+                    label = "Phone Number",
+                    icon = Icons.Default.Phone,
+                    iconColor = NeonGreen
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(dimens.paddingSmall.dp))
+        ContactField(
             value = contactEmail,
             onValueChange = onContactEmailChange,
-            label = {
-                Text(
-                    "Email Address",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            placeholder = {
-                Text(
-                    "john@example.com",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = null,
-                    tint = NeonGreen.copy(alpha = 0.7f),
-                    modifier = Modifier.size(18.dp)
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = NeonGreen,
-                unfocusedBorderColor = NeonGreen.copy(alpha = 0.3f),
-                focusedLabelColor = NeonGreen,
-                cursorColor = NeonGreen,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
-            ),
-            singleLine = true
+            label = "Email Address",
+            icon = Icons.Default.Email,
+            iconColor = NeonGreen
         )
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium.dp)) {
+            ContactField(
+                value = contactName,
+                onValueChange = onContactNameChange,
+                label = "Full Name",
+                icon = Icons.Default.Person,
+                iconColor = NeonGreen
+            )
+            ContactField(
+                value = contactPhone,
+                onValueChange = onContactPhoneChange,
+                label = "Phone Number",
+                icon = Icons.Default.Phone,
+                iconColor = NeonGreen
+            )
+            ContactField(
+                value = contactEmail,
+                onValueChange = onContactEmailChange,
+                label = "Email Address",
+                icon = Icons.Default.Email,
+                iconColor = NeonGreen
+            )
+        }
     }
+}
+
+@Composable
+fun ContactField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconColor: Color
+) {
+    val dimens = getAdaptiveDimens()
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, fontFamily = FontFamily.Monospace) },
+        placeholder = {
+            Text(
+                when (label) {
+                    "Full Name" -> "John Doe"
+                    "Phone Number" -> "+1 234 567 890"
+                    else -> "john@example.com"
+                },
+                fontFamily = FontFamily.Monospace
+            )
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor.copy(alpha = 0.7f),
+                modifier = Modifier.size(dimens.iconSize.dp)
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = iconColor,
+            unfocusedBorderColor = iconColor.copy(alpha = 0.3f),
+            focusedLabelColor = iconColor,
+            cursorColor = iconColor,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
+        ),
+        singleLine = true,
+        textStyle = LocalTextStyle.current.copy(fontSize = dimens.bodyFontSize.sp)
+    )
 }
 
 enum class CreateTagType {
@@ -656,14 +567,8 @@ fun createArtificialTag(
     onComplete: (Boolean) -> Unit
 ) {
     try {
-        Log.d(TAG, "Creating artificial tag: name=$name, type=$type, content=$content")
-
         val uid = generateArtificialUid()
-        Log.d(TAG, "Generated UID: $uid")
-
         val ndefMessage = createNdefMessage(content, type)
-        Log.d(TAG, "Created NDEF message size: ${ndefMessage.size} bytes")
-
         val tagType = convertToTagType(type)
 
         val tag = TagData(
@@ -692,13 +597,8 @@ fun createContactTag(
     onComplete: (Boolean) -> Unit
 ) {
     try {
-        Log.d(TAG, "Creating contact tag: name=$name")
-
         val uid = generateArtificialUid()
-        Log.d(TAG, "Generated UID: $uid")
-
         val ndefMessage = createVCardNdefMessage(contactName, contactPhone, contactEmail)
-        Log.d(TAG, "Created vCard NDEF message size: ${ndefMessage.size} bytes")
 
         val tag = TagData(
             uid = uid,
@@ -740,7 +640,6 @@ fun createVCardNdefMessage(
     contactPhone: String,
     contactEmail: String
 ): ByteArray {
-    // Build vCard string
     val vcard = buildString {
         append("BEGIN:VCARD\n")
         append("VERSION:3.0\n")
@@ -750,10 +649,7 @@ fun createVCardNdefMessage(
         append("END:VCARD")
     }
 
-    // Create MIME record for vCard
     val mimeRecord = createNdefMimeRecord("text/vcard", vcard)
-
-    // Wrap with NLEN (2 bytes length)
     val message = ByteArray(2 + mimeRecord.size)
     message[0] = ((mimeRecord.size shr 8) and 0xFF).toByte()
     message[1] = (mimeRecord.size and 0xFF).toByte()
@@ -763,7 +659,6 @@ fun createVCardNdefMessage(
 }
 
 fun createUrlNdefMessage(url: String): ByteArray {
-    // Ensure URL has protocol
     val fullUrl = if (!url.startsWith("http://") && !url.startsWith("https://")) {
         "https://$url"
     } else {
@@ -788,22 +683,14 @@ fun createTextNdefMessage(text: String): ByteArray {
 }
 
 fun createPhoneNdefMessage(phone: String): ByteArray {
-    // Clean phone number from non-digit characters except +
     val cleanPhone = phone.replace(Regex("[^\\d+]"), "")
-
-    // Create proper tel: URI
     val telUri = "tel:$cleanPhone"
-    Log.d(TAG, "Creating phone NDEF with URI: $telUri")
 
-    // Create a proper NDEF record for tel URI
-    // Using TNF_WELL_KNOWN with type "U" for URI
-    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
+    val header: Byte = 0xD1.toByte()
     val typeLength: Byte = 0x01
-    val type: Byte = 0x55.toByte() // 'U'
-
-    // For tel: scheme, we use URI code 0x05
+    val type: Byte = 0x55.toByte()
     val uriCode: Byte = 0x05
-    val cleanUri = telUri.substring(4) // Remove "tel:" prefix
+    val cleanUri = telUri.substring(4)
     val uriBytes = cleanUri.toByteArray(Charset.forName("UTF-8"))
 
     val payloadLength = (uriBytes.size + 1).toByte()
@@ -817,7 +704,6 @@ fun createPhoneNdefMessage(phone: String): ByteArray {
     record[pos++] = uriCode
     uriBytes.forEach { record[pos++] = it }
 
-    // Wrap with NLEN (2 bytes length)
     val message = ByteArray(2 + record.size)
     message[0] = ((record.size shr 8) and 0xFF).toByte()
     message[1] = (record.size and 0xFF).toByte()
@@ -827,18 +713,13 @@ fun createPhoneNdefMessage(phone: String): ByteArray {
 }
 
 fun createEmailNdefMessage(email: String): ByteArray {
-    // Validate email format (basic check)
     val cleanEmail = email.trim()
-
-    // Create proper mailto: URI
     val mailtoUri = if (!cleanEmail.startsWith("mailto:")) {
         "mailto:$cleanEmail"
     } else {
         cleanEmail
     }
-    Log.d(TAG, "Creating email NDEF with URI: $mailtoUri")
 
-    // Use URI record for email (this will work with mailto: scheme)
     val uriRecord = createNdefUriRecord(mailtoUri)
     val message = ByteArray(2 + uriRecord.size)
     message[0] = ((uriRecord.size shr 8) and 0xFF).toByte()
@@ -848,12 +729,12 @@ fun createEmailNdefMessage(email: String): ByteArray {
 }
 
 fun createNdefUriRecord(uri: String): ByteArray {
-    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01 (NFC Forum well-known type)
+    val header: Byte = 0xD1.toByte()
     val typeLength: Byte = 0x01
     val (uriCode, cleanUri) = getUriCodeAndCleanUrl(uri)
     val uriBytes = cleanUri.toByteArray(Charset.forName("UTF-8"))
     val payloadLength = (uriBytes.size + 1).toByte()
-    val type: Byte = 0x55.toByte() // 'U'
+    val type: Byte = 0x55.toByte()
 
     val record = ByteArray(4 + 1 + uriBytes.size)
     var pos = 0
@@ -868,13 +749,13 @@ fun createNdefUriRecord(uri: String): ByteArray {
 }
 
 fun createNdefTextRecord(text: String): ByteArray {
-    val header: Byte = 0xD1.toByte() // MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x01
+    val header: Byte = 0xD1.toByte()
     val typeLength: Byte = 0x01
     val languageCode = "en".toByteArray(Charset.forName("US-ASCII"))
     val textBytes = text.toByteArray(Charset.forName("UTF-8"))
-    val statusByte = (languageCode.size and 0x3F).toByte() // Bit 7 = 0 (UTF-8)
+    val statusByte = (languageCode.size and 0x3F).toByte()
     val payloadLength = (1 + languageCode.size + textBytes.size).toByte()
-    val type: Byte = 0x54.toByte() // 'T'
+    val type: Byte = 0x54.toByte()
 
     val record = ByteArray(4 + 1 + languageCode.size + textBytes.size)
     var pos = 0
@@ -890,12 +771,9 @@ fun createNdefTextRecord(text: String): ByteArray {
 }
 
 fun createNdefMimeRecord(mimeType: String, content: String): ByteArray {
-    // Header: MB=1, ME=1, CF=0, SR=1, IL=0, TNF=0x02 (MIME media type)
     val header: Byte = 0xD2.toByte()
-
     val typeBytes = mimeType.toByteArray(Charset.forName("US-ASCII"))
     val contentBytes = content.toByteArray(Charset.forName("UTF-8"))
-
     val typeLength = typeBytes.size.toByte()
     val payloadLength = contentBytes.size.toByte()
 

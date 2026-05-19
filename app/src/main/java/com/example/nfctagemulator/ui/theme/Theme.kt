@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 
 val NeonDarkColorScheme = darkColorScheme(
     primary = NeonCyan,
@@ -40,6 +41,86 @@ val NeonDarkColorScheme = darkColorScheme(
     outlineVariant = NeonPurple.copy(alpha = 0.3f)
 )
 
+// Adaptive dimensions based on screen size
+@Composable
+fun getAdaptiveDimens(): AdaptiveDimens {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val screenHeightDp = configuration.screenHeightDp
+
+    return when {
+        screenWidthDp < 360 -> SmallDimens()      // Very small phones
+        screenWidthDp < 480 -> MediumDimens()     // Regular phones
+        screenWidthDp < 720 -> LargeDimens()      // Large phones / small tablets
+        else -> TabletDimens()                    // Tablets
+    }
+}
+
+interface AdaptiveDimens {
+    val paddingSmall: Int
+    val paddingMedium: Int
+    val paddingLarge: Int
+    val cardCornerRadius: Int
+    val buttonHeight: Int
+    val iconSize: Int
+    val headerFontSize: Int
+    val titleFontSize: Int
+    val bodyFontSize: Int
+    val scannerSize: Int
+}
+
+class SmallDimens : AdaptiveDimens {
+    override val paddingSmall = 8
+    override val paddingMedium = 12
+    override val paddingLarge = 16
+    override val cardCornerRadius = 12
+    override val buttonHeight = 44
+    override val iconSize = 20
+    override val headerFontSize = 18
+    override val titleFontSize = 14
+    override val bodyFontSize = 12
+    override val scannerSize = 160
+}
+
+class MediumDimens : AdaptiveDimens {
+    override val paddingSmall = 12
+    override val paddingMedium = 16
+    override val paddingLarge = 20
+    override val cardCornerRadius = 16
+    override val buttonHeight = 48
+    override val iconSize = 24
+    override val headerFontSize = 22
+    override val titleFontSize = 16
+    override val bodyFontSize = 14
+    override val scannerSize = 200
+}
+
+class LargeDimens : AdaptiveDimens {
+    override val paddingSmall = 16
+    override val paddingMedium = 24
+    override val paddingLarge = 32
+    override val cardCornerRadius = 20
+    override val buttonHeight = 52
+    override val iconSize = 28
+    override val headerFontSize = 28
+    override val titleFontSize = 18
+    override val bodyFontSize = 16
+    override val scannerSize = 260
+}
+
+class TabletDimens : AdaptiveDimens {
+    override val paddingSmall = 24
+    override val paddingMedium = 32
+    override val paddingLarge = 48
+    override val cardCornerRadius = 24
+    override val buttonHeight = 56
+    override val iconSize = 32
+    override val headerFontSize = 36
+    override val titleFontSize = 22
+    override val bodyFontSize = 18
+    override val scannerSize = 320
+}
+
 @Composable
 fun NfcTagEmulatorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -52,7 +133,7 @@ fun NfcTagEmulatorTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> NeonDarkColorScheme
-        else -> lightColorScheme() // Для светлой темы можно добавить позже
+        else -> lightColorScheme()
     }
 
     MaterialTheme(

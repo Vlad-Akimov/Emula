@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.nfctagemulator.ui.theme.SurfaceDark
+import com.example.nfctagemulator.ui.theme.getAdaptiveDimens
 
 @Composable
 fun GlowCard(
@@ -22,17 +23,20 @@ fun GlowCard(
     gradientColors: List<Color> = listOf(SurfaceDark, SurfaceDark),
     content: @Composable () -> Unit
 ) {
+    val dimens = getAdaptiveDimens()
+    val cornerRadius = dimens.cardCornerRadius.dp
+
     Card(
         modifier = modifier
             .shadow(
                 elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(cornerRadius)
             )
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(cornerRadius)),
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(cornerRadius)
     ) {
         Box(
             modifier = Modifier
@@ -40,7 +44,7 @@ fun GlowCard(
                 .background(
                     brush = Brush.verticalGradient(gradientColors)
                 )
-                .padding(16.dp)
+                .padding(dimens.paddingMedium.dp)
         ) {
             content()
         }
