@@ -2,11 +2,13 @@ package com.example.nfctagemulator.ui.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ fun TagCard(
     val dimens = getAdaptiveDimens()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    var showMenu by remember { mutableStateOf(false) }
 
     val infiniteTransition = rememberInfiniteTransition(label = "tag_card")
     val glowAlpha by infiniteTransition.animateFloat(
@@ -145,41 +147,15 @@ fun TagCard(
 
                 // Action buttons
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = { onDeleteClick(tag) },
-                        modifier = Modifier.size((dimens.iconSize + 8).dp),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = Color.Red.copy(alpha = 0.7f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            modifier = Modifier.size(dimens.iconSize.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = { onRenameClick(tag) },
-                        modifier = Modifier.size((dimens.iconSize + 8).dp),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = NeonCyan
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Rename",
-                            modifier = Modifier.size(dimens.iconSize.dp)
-                        )
-                    }
-
+                    // Emulate/Stop button
                     Button(
                         onClick = { onEmulateClick(tag) },
                         modifier = Modifier
                             .height((dimens.buttonHeight - 8).dp)
-                            .widthIn(min = if (isLandscape) 70.dp else 80.dp),
+                            .widthIn(min = if (isLandscape) 60.dp else 70.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isEmulating)
@@ -205,6 +181,88 @@ fun TagCard(
                                 maxLines = 1,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                             )
+                        }
+                    }
+
+                    // Menu button (three dots)
+                    Box {
+                        IconButton(
+                            onClick = { showMenu = !showMenu },
+                            modifier = Modifier.size((dimens.iconSize + 8).dp),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = NeonCyan.copy(alpha = 0.7f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More options",
+                                modifier = Modifier.size(dimens.iconSize.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            modifier = Modifier
+                                .background(SurfaceGlow)
+                                .clip(RoundedCornerShape(12.dp)),
+                            containerColor = SurfaceGlow
+                        ) {
+                            // Rename menu item
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showMenu = false
+                                        onRenameClick(tag)
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Rename",
+                                    tint = NeonCyan,
+                                    modifier = Modifier.size(dimens.iconSize.dp)
+                                )
+                                Text(
+                                    text = "Rename",
+                                    color = Color.White,
+                                    fontSize = dimens.bodyFontSize.sp
+                                )
+                            }
+
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                color = NeonCyan.copy(alpha = 0.2f),
+                                thickness = 0.5.dp
+                            )
+
+                            // Delete menu item
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        showMenu = false
+                                        onDeleteClick(tag)
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Red.copy(alpha = 0.8f),
+                                    modifier = Modifier.size(dimens.iconSize.dp)
+                                )
+                                Text(
+                                    text = "Delete",
+                                    color = Color.Red.copy(alpha = 0.8f),
+                                    fontSize = dimens.bodyFontSize.sp
+                                )
+                            }
                         }
                     }
                 }

@@ -42,7 +42,7 @@ fun BottomNavigationBar(
     ) {
         val navItems = listOf(
             Triple(0, Icons.Default.Folder, "SAVED"),
-            Triple(1, Icons.Default.QrCodeScanner, "SCAN"),
+            Triple(1, Icons.Default.Nfc, "SCAN"),
             Triple(2, Icons.Default.Add, "CREATE")
         )
 
