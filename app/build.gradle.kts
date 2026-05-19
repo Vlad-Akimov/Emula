@@ -68,7 +68,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // Foundation for swipe gestures
-    implementation("androidx.compose.foundation:foundation:1.6.7")
+    implementation("androidx.compose.foundation:foundation:1.11.1")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
