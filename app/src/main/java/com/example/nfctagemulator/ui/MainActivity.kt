@@ -14,11 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.repository.TagRepository
 import com.example.nfctagemulator.nfc.emulator.TagEmulator
 import com.example.nfctagemulator.nfc.reader.NfcReader
 import com.example.nfctagemulator.ui.components.BottomNavigationBar
+import com.example.nfctagemulator.ui.onboarding.OnboardingScreen
+import com.example.nfctagemulator.ui.onboarding.OnboardingViewModel
 import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.screen.SavedTagsScreen
 import com.example.nfctagemulator.ui.screen.ScanScreen
@@ -53,7 +58,7 @@ class MainActivity : ComponentActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     // Use light status bar icons (white) because background is dark
                     decorView.systemUiVisibility = decorView.systemUiVisibility or
-                            android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() // Remove light flag for dark background
+                            android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 }
             }
         }
@@ -74,6 +79,35 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation() {
         val context = LocalContext.current
+
+        // Onboarding ViewModel
+        val onboardingViewModel: OnboardingViewModel = viewModel(
+            factory = viewModelFactory {
+                initializer {
+                    OnboardingViewModel(context)
+                }
+            }
+        )
+
+        val isFirstLaunch by onboardingViewModel.isFirstLaunch.collectAsState()
+
+        if (isFirstLaunch) {
+            // Show onboarding
+            OnboardingScreen(
+                onComplete = {
+                    onboardingViewModel.markOnboardingCompleted()
+                }
+            )
+        } else {
+            // Main app
+            MainAppContent()
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun MainAppContent() {
+        val context = LocalContext.current
         val pagerState = rememberPagerState(
             initialPage = 0,
             pageCount = { 3 }
@@ -91,7 +125,6 @@ class MainActivity : ComponentActivity() {
 
         Scaffold(
             containerColor = Color.Transparent,
-            // Remove top insets to avoid white bar, keep bottom insets for navigation
             contentWindowInsets = WindowInsets(
                 left = 0,
                 top = 0,

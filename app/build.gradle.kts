@@ -61,7 +61,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
-    // Material Icons Extended - добавляем эту строку!
+    // Material Icons Extended
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
 
     // Navigation Compose
@@ -69,6 +69,9 @@ dependencies {
 
     // Foundation for swipe gestures
     implementation("androidx.compose.foundation:foundation:1.6.7")
+
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
