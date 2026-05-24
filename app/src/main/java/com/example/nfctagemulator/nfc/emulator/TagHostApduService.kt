@@ -28,6 +28,24 @@ class TagHostApduService : HostApduService() {
             0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x01
         )
 
+        // Alternative NDEF AIDs for better compatibility
+        private val ALT_NDEF_AID_1 = byteArrayOf(
+            0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x00
+        )
+        private val ALT_NDEF_AID_2 = byteArrayOf(
+            0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x02
+        )
+        private val ALT_NDEF_AID_3 = byteArrayOf(
+            0xD2.toByte(), 0x76, 0x00, 0x00, 0x85.toByte(), 0x01, 0x10
+        )
+        private val GENERIC_AID = byteArrayOf(
+            0xF0.toByte(), 0x01, 0x02, 0x03, 0x04, 0x05, 0x06
+        )
+
+        private val SUPPORTED_AIDS = listOf(
+            NDEF_AID, ALT_NDEF_AID_1, ALT_NDEF_AID_2, ALT_NDEF_AID_3, GENERIC_AID
+        )
+
         // File IDs for Type 4 Tag
         private const val FILE_ID_CC = 0xE103  // Capability Container
         private const val FILE_ID_NDEF = 0xE104 // NDEF File
@@ -74,7 +92,7 @@ class TagHostApduService : HostApduService() {
 
             // Check if we're emulating
             val emulatingUid = emulator.getEmulatingTagUid() ?: run {
-                Log.d(TAG, "No tag emulating")
+                Log.d(TAG, "No tag emulating - sending FILE_NOT_FOUND to let other apps handle")
                 return SW_FILE_NOT_FOUND
             }
 
@@ -136,14 +154,16 @@ class TagHostApduService : HostApduService() {
                 val aid = apdu.copyOfRange(5, 5 + aidLength)
                 Log.d(TAG, "SELECT AID: ${bytesToHex(aid)}")
 
-                // Check if it matches our NDEF AID
-                if (aid.contentEquals(NDEF_AID)) {
+                // Check if it matches any of our supported AIDs
+                val isSupported = SUPPORTED_AIDS.any { it.contentEquals(aid) }
+
+                if (isSupported) {
                     Log.d(TAG, "NDEF application selected")
                     currentFile = 0 // Reset file selection
                     return SW_SUCCESS
                 }
 
-                Log.d(TAG, "Unknown AID")
+                Log.d(TAG, "Unknown AID - not handling")
                 return SW_FILE_NOT_FOUND
             }
 
@@ -382,6 +402,11 @@ class TagHostApduService : HostApduService() {
     override fun onDeactivated(reason: Int) {
         Log.d(TAG, "Deactivated: reason=$reason")
         currentFile = 0
+        when (reason) {
+            HostApduService.DEACTIVATION_DESELECTED -> Log.d(TAG, "DEACTIVATION_DESELECTED")
+            HostApduService.DEACTIVATION_LINK_LOSS -> Log.d(TAG, "DEACTIVATION_LINK_LOSS")
+            else -> Log.d(TAG, "Deactivated with reason: $reason")
+        }
     }
 
     private fun bytesToHex(bytes: ByteArray): String {

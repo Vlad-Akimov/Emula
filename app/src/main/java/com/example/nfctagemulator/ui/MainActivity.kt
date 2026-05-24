@@ -1,7 +1,10 @@
 package com.example.nfctagemulator.ui
 
+import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
 import android.nfc.NfcAdapter
+import android.nfc.cardemulation.CardEmulation
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -10,6 +13,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +34,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nfctagemulator.data.model.TagData
 import com.example.nfctagemulator.data.repository.TagRepository
 import com.example.nfctagemulator.nfc.emulator.TagEmulator
+import com.example.nfctagemulator.nfc.emulator.TagHostApduService
 import com.example.nfctagemulator.nfc.reader.NfcReader
 import com.example.nfctagemulator.ui.components.BottomNavigationBar
 import com.example.nfctagemulator.ui.onboarding.OnboardingScreen
@@ -37,8 +43,6 @@ import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.screen.SavedTagsScreen
 import com.example.nfctagemulator.ui.screen.ScanScreen
 import com.example.nfctagemulator.ui.theme.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -100,6 +104,7 @@ class MainActivity : ComponentActivity() {
             OnboardingScreen(
                 onComplete = {
                     onboardingViewModel.markOnboardingCompleted()
+                    checkAndFixNfcSettings()
                 }
             )
         } else {
@@ -119,44 +124,66 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun checkAndFixNfcSettings() {
+        val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        if (nfcAdapter != null && nfcAdapter.isEnabled) {
+            val cardEmulation = CardEmulation.getInstance(nfcAdapter)
+            val component = ComponentName(this, TagHostApduService::class.java)
+
+            // Check if this app is the default for "other" category
+            if (cardEmulation?.isDefaultServiceForCategory(component, CardEmulation.CATEGORY_OTHER) != true) {
+                showDisableBuiltInTagDialog()
+            }
+        }
+    }
+
+    private fun showDisableBuiltInTagDialog() {
+        runOnUiThread {
+            Toast.makeText(
+                this,
+                "Open NFC settings → Tap & pay → Select this app as default",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     private fun openNfcSettings() {
         try {
-            // Пробуем открыть напрямую настройки NFC
-            val intent = when {
-                // Android 10+
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                    Intent(Settings.Panel.ACTION_NFC)
-                }
-                // Android 6.0 - 9.0
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
-                    Intent(Settings.ACTION_NFC_SETTINGS)
-                }
-                // Android 4.4 - 5.1
-                else -> {
-                    Intent(Settings.ACTION_WIRELESS_SETTINGS)
-                }
-            }
-
+            // Try to open Tap & pay settings directly
+            val intent = Intent(Settings.ACTION_NFC_PAYMENT_SETTINGS)
             startActivity(intent)
-
-            // Если успешно открылось, показываем короткий Toast
-            Toast.makeText(this, "Enable NFC and set as default app", Toast.LENGTH_SHORT).show()
-
+            Toast.makeText(
+                this,
+                "Select this app as default payment app",
+                Toast.LENGTH_LONG
+            ).show()
         } catch (e: Exception) {
-            // Если не получилось открыть NFC напрямую, пробуем альтернативные варианты
             try {
-                // Пробуем другой вариант
-                startActivity(Intent("android.settings.NFC_SETTINGS"))
-            } catch (e2: Exception) {
-                try {
-                    // Пробуем беспроводные настройки
-                    startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
-                    Toast.makeText(this, "Look for NFC in wireless settings", Toast.LENGTH_LONG).show()
-                } catch (e3: Exception) {
-                    // Самый последний вариант - главные настройки
-                    startActivity(Intent(Settings.ACTION_SETTINGS))
-                    Toast.makeText(this, "Go to: Connected devices → Connection preferences → NFC", Toast.LENGTH_LONG).show()
+                // Fallback to NFC settings
+                val intent = when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                        Intent(Settings.Panel.ACTION_NFC)
+                    }
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                        Intent(Settings.ACTION_NFC_SETTINGS)
+                    }
+                    else -> {
+                        Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                    }
                 }
+                startActivity(intent)
+                Toast.makeText(
+                    this,
+                    "Go to: Tap & pay → Select this app",
+                    Toast.LENGTH_LONG
+                ).show()
+            } catch (e2: Exception) {
+                startActivity(Intent(Settings.ACTION_SETTINGS))
+                Toast.makeText(
+                    this,
+                    "Go to: Connected devices → Connection preferences → Tap & pay → Select this app",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -169,6 +196,14 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
         val isNfcEnabled = nfcAdapter?.isEnabled == true
+
+        val isDefaultApp = remember {
+            if (nfcAdapter != null) {
+                val cardEmulation = CardEmulation.getInstance(nfcAdapter)
+                val component = ComponentName(context, TagHostApduService::class.java)
+                cardEmulation?.isDefaultServiceForCategory(component, CardEmulation.CATEGORY_OTHER) == true
+            } else false
+        }
 
         Dialog(
             onDismissRequest = onDismiss,
@@ -185,12 +220,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "📡", fontSize = 40.sp)
+                    Text(text = "⚠️", fontSize = 48.sp)
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "NFC Setup Required",
+                        text = "Tap & Pay Conflict",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = NeonCyan
@@ -198,7 +233,6 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Instruction text
                     Text(
                         text = "To use this app, you need to:\n\n" +
                                 "1️⃣ Enable NFC on your device\n" +
@@ -212,7 +246,6 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // NFC status
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -229,6 +262,34 @@ class MainActivity : ComponentActivity() {
                             color = if (isNfcEnabled) NeonGreen else Color.White.copy(alpha = 0.5f)
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isDefaultApp) NeonGreen.copy(alpha = 0.15f) else NeonCyan.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = if (isDefaultApp) "✓ This app is DEFAULT" else "⚠ This app is NOT default",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            color = if (isDefaultApp) NeonGreen else NeonCyan
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "💡 Tip: After setting as default, restart NFC if conflict persists",
+                        fontSize = 10.sp,
+                        color = Color.White.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center
+                    )
 
                     Spacer(modifier = Modifier.height(20.dp))
 

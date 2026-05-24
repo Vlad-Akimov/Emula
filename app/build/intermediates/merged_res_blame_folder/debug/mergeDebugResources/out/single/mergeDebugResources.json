@@ -12,6 +12,10 @@
         "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
     },
     {
+        "merged": "com.example.nfctagemulator.app-debug-39:/drawable_ic_nfc_tag.xml.flat",
+        "source": "com.example.nfctagemulator.app-main-41:/drawable/ic_nfc_tag.xml"
+    },
+    {
         "merged": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-debug-39:\\mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
         "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-xxhdpi\\ic_launcher_foreground.webp"
     },
@@ -72,12 +76,12 @@
         "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-debug-39:\\mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
-        "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-xxxhdpi\\ic_launcher_foreground.webp"
-    },
-    {
         "merged": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-debug-39:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
         "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-debug-39:\\mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-main-41:\\mipmap-xxxhdpi\\ic_launcher_foreground.webp"
     },
     {
         "merged": "C:\\Users\\vladl\\.gradle\\daemon\\9.2.1\\com.example.nfctagemulator.app-debug-39:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
