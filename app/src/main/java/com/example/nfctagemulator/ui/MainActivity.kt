@@ -1,19 +1,28 @@
 package com.example.nfctagemulator.ui
 
 import android.content.Intent
+import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -27,7 +36,7 @@ import com.example.nfctagemulator.ui.onboarding.OnboardingViewModel
 import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.screen.SavedTagsScreen
 import com.example.nfctagemulator.ui.screen.ScanScreen
-import com.example.nfctagemulator.ui.theme.NfcTagEmulatorTheme
+import com.example.nfctagemulator.ui.theme.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.launch
@@ -44,19 +53,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Enable edge-to-edge display
         enableEdgeToEdge()
 
-        // Make status bar transparent with proper insets handling
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.apply {
                 statusBarColor = android.graphics.Color.TRANSPARENT
-                // For Android 10 and above, we can make status bar icons light
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     setDecorFitsSystemWindows(false)
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // Use light status bar icons (white) because background is dark
                     decorView.systemUiVisibility = decorView.systemUiVisibility or
                             android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 }
@@ -80,7 +85,6 @@ class MainActivity : ComponentActivity() {
     fun AppNavigation() {
         val context = LocalContext.current
 
-        // Onboarding ViewModel
         val onboardingViewModel: OnboardingViewModel = viewModel(
             factory = viewModelFactory {
                 initializer {
@@ -90,17 +94,169 @@ class MainActivity : ComponentActivity() {
         )
 
         val isFirstLaunch by onboardingViewModel.isFirstLaunch.collectAsState()
+        val shouldShowNfcSetup by onboardingViewModel.shouldShowNfcSetup.collectAsState()
 
         if (isFirstLaunch) {
-            // Show onboarding
             OnboardingScreen(
                 onComplete = {
                     onboardingViewModel.markOnboardingCompleted()
                 }
             )
         } else {
-            // Main app
             MainAppContent()
+
+            if (shouldShowNfcSetup) {
+                NfcSetupDialog(
+                    onDismiss = {
+                        onboardingViewModel.markNfcSetupShown()
+                    },
+                    onSetupComplete = {
+                        onboardingViewModel.markNfcSetupShown()
+                        openNfcSettings()
+                    }
+                )
+            }
+        }
+    }
+
+    private fun openNfcSettings() {
+        try {
+            // Пробуем открыть напрямую настройки NFC
+            val intent = when {
+                // Android 10+
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                    Intent(Settings.Panel.ACTION_NFC)
+                }
+                // Android 6.0 - 9.0
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                    Intent(Settings.ACTION_NFC_SETTINGS)
+                }
+                // Android 4.4 - 5.1
+                else -> {
+                    Intent(Settings.ACTION_WIRELESS_SETTINGS)
+                }
+            }
+
+            startActivity(intent)
+
+            // Если успешно открылось, показываем короткий Toast
+            Toast.makeText(this, "Enable NFC and set as default app", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            // Если не получилось открыть NFC напрямую, пробуем альтернативные варианты
+            try {
+                // Пробуем другой вариант
+                startActivity(Intent("android.settings.NFC_SETTINGS"))
+            } catch (e2: Exception) {
+                try {
+                    // Пробуем беспроводные настройки
+                    startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                    Toast.makeText(this, "Look for NFC in wireless settings", Toast.LENGTH_LONG).show()
+                } catch (e3: Exception) {
+                    // Самый последний вариант - главные настройки
+                    startActivity(Intent(Settings.ACTION_SETTINGS))
+                    Toast.makeText(this, "Go to: Connected devices → Connection preferences → NFC", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun NfcSetupDialog(
+        onDismiss: () -> Unit,
+        onSetupComplete: () -> Unit
+    ) {
+        val context = LocalContext.current
+        val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
+        val isNfcEnabled = nfcAdapter?.isEnabled == true
+
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceDark)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "📡", fontSize = 40.sp)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "NFC Setup Required",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NeonCyan
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Instruction text
+                    Text(
+                        text = "To use this app, you need to:\n\n" +
+                                "1️⃣ Enable NFC on your device\n" +
+                                "2️⃣ Set this app as default for Tap & pay\n\n" +
+                                "👇 Tap SET UP to open Settings",
+                        fontSize = 13.sp,
+                        color = Color.White.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // NFC status
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isNfcEnabled) NeonGreen.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.05f)
+                    ) {
+                        Text(
+                            text = if (isNfcEnabled) "✓ NFC is ENABLED" else "✗ NFC is DISABLED",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center,
+                            color = if (isNfcEnabled) NeonGreen else Color.White.copy(alpha = 0.5f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        TextButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("LATER", fontSize = 13.sp)
+                        }
+
+                        Button(
+                            onClick = onSetupComplete,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = NeonCyan,
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("SET UP", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -212,7 +368,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Stop emulation when app is closed
         if (emulator.isEmulating()) {
             emulator.setEmulatingTag(null)
             isEmulating.value = false
