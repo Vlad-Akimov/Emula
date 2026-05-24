@@ -106,7 +106,8 @@ fun ScanScreen(
                 style = MaterialTheme.typography.headlineMedium.copy(fontFamily = FontFamily.Monospace, letterSpacing = 2.sp),
                 color = NeonCyan,
                 fontSize = dimens.headerFontSize.sp,
-                modifier = Modifier.padding(bottom = if (isLandscape) dimens.paddingMedium.dp else dimens.paddingLarge.dp)
+                modifier = Modifier
+                    .padding(dimens.paddingMedium.dp)
             )
 
             // Scanner animation

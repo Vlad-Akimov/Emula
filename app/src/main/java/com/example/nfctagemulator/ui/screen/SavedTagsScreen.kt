@@ -201,7 +201,7 @@ fun SavedTagsScreen(
                         top = dimens.paddingSmall.dp,
                         bottom = dimens.paddingLarge.dp
                     ),
-                    verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium.dp)
+                    verticalArrangement = Arrangement.spacedBy(dimens.paddingSmall.dp)
                 ) {
                     items(
                         items = tags,

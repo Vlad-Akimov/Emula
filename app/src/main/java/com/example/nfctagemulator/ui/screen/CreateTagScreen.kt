@@ -93,7 +93,8 @@ fun CreateTagScreen(
                 ),
                 color = NeonCyan,
                 fontSize = dimens.headerFontSize.sp,
-                modifier = Modifier.padding(bottom = dimens.paddingMedium.dp)
+                modifier = Modifier
+                    .padding(dimens.paddingMedium.dp)
             )
 
             // Type selection
