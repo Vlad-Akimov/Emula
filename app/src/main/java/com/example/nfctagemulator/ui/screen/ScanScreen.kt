@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +35,7 @@ import kotlinx.coroutines.delay
 fun ScanScreen(
     repository: TagRepository,
     scannedTag: TagData?,
+    isNfcEnabled: Boolean,
     onNavigateToCreate: () -> Unit
 ) {
     val context = LocalContext.current
@@ -104,11 +106,39 @@ fun ScanScreen(
             Text(
                 text = "SCAN NFC",
                 style = MaterialTheme.typography.headlineMedium.copy(fontFamily = FontFamily.Monospace, letterSpacing = 2.sp),
-                color = NeonCyan,
+                color = if (isNfcEnabled) NeonCyan else Color.Red,
                 fontSize = dimens.headerFontSize.sp,
                 modifier = Modifier
                     .padding(dimens.paddingMedium.dp)
             )
+
+            // NFC Warning
+            if (!isNfcEnabled) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = dimens.paddingMedium.dp),
+                    shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.15f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimens.paddingMedium.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "⚠️", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "NFC is disabled",
+                            color = Color.Red,
+                            fontSize = dimens.titleFontSize.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             // Scanner animation
             val scannerSize = if (isLandscape) dimens.scannerSize * 0.7f else dimens.scannerSize.toFloat()
@@ -146,8 +176,10 @@ fun ScanScreen(
                             brush = Brush.radialGradient(
                                 colors = if (localScannedTag != null)
                                     listOf(NeonGreen.copy(alpha = glowIntensity * 0.8f), NeonCyan.copy(alpha = 0.1f), Color.Transparent)
+                                else if (isNfcEnabled)
+                                    listOf(NeonCyan.copy(alpha = glowIntensity), NeonPurple.copy(alpha = 0.2f), Color.Transparent)
                                 else
-                                    listOf(NeonCyan.copy(alpha = glowIntensity), NeonPurple.copy(alpha = 0.2f), Color.Transparent),
+                                    listOf(Color.Red.copy(alpha = glowIntensity * 0.5f), Color.Transparent),
                                 center = Offset(centerX, centerY),
                                 radius = radius * 0.6f
                             ),
@@ -155,12 +187,16 @@ fun ScanScreen(
                         )
 
                         drawCircle(
-                            color = if (localScannedTag != null) NeonGreen else NeonCyan,
+                            color = when {
+                                localScannedTag != null -> NeonGreen
+                                !isNfcEnabled -> Color.Red
+                                else -> NeonCyan
+                            },
                             radius = 4f,
                             center = Offset(centerX, centerY)
                         )
                     }
-                    .scale(if (isScanning) breathScale else 1f)
+                    .scale(if (isScanning && isNfcEnabled) breathScale else 1f)
                     .clip(RoundedCornerShape(32.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -183,8 +219,8 @@ fun ScanScreen(
                         modifier = Modifier
                             .size((scannerSize / 2.5f).dp)
                             .scale(iconScale)
-                            .graphicsLayer { alpha = 0.9f },
-                        tint = NeonCyan
+                            .graphicsLayer { alpha = if (isNfcEnabled) 0.9f else 0.3f },
+                        tint = if (isNfcEnabled) NeonCyan else Color.Red
                     )
                 }
             }
@@ -198,6 +234,8 @@ fun ScanScreen(
                     .padding(horizontal = if (isLandscape) dimens.paddingMedium.dp else 0.dp),
                 gradientColors = if (localScannedTag != null)
                     listOf(NeonGreen.copy(alpha = 0.08f), SurfaceDark)
+                else if (!isNfcEnabled)
+                    listOf(Color.Red.copy(alpha = 0.08f), SurfaceDark)
                 else
                     listOf(NeonCyan.copy(alpha = 0.08f), SurfaceDark)
             ) {
@@ -218,6 +256,7 @@ fun ScanScreen(
                                 .background(
                                     color = when {
                                         localScannedTag != null -> NeonGreen
+                                        !isNfcEnabled -> Color.Red
                                         isScanning -> NeonCyan
                                         else -> NeonPurple
                                     },
@@ -228,12 +267,14 @@ fun ScanScreen(
                         Text(
                             text = when {
                                 localScannedTag != null -> "TAG DETECTED"
+                                !isNfcEnabled -> "NFC DISABLED"
                                 isScanning -> "SCANNING"
                                 else -> "READY"
                             },
                             style = MaterialTheme.typography.titleSmall.copy(fontFamily = FontFamily.Monospace, letterSpacing = 1.sp),
                             color = when {
                                 localScannedTag != null -> NeonGreen
+                                !isNfcEnabled -> Color.Red
                                 isScanning -> NeonCyan
                                 else -> NeonPurple
                             },
@@ -269,6 +310,25 @@ fun ScanScreen(
                                 modifier = Modifier.padding(horizontal = dimens.paddingSmall.dp, vertical = dimens.paddingSmall.dp / 2),
                                 fontFamily = FontFamily.Monospace
                             )
+                        }
+                    } else if (!isNfcEnabled) {
+                        Text(
+                            text = "Please enable NFC in your device settings to scan tags",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center,
+                            fontSize = dimens.bodyFontSize.sp
+                        )
+                        Spacer(modifier = Modifier.height(dimens.paddingSmall.dp))
+                        Button(
+                            onClick = {
+                                val intent = android.content.Intent(android.provider.Settings.ACTION_NFC_SETTINGS)
+                                context.startActivity(intent)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = Color.Black),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("OPEN NFC SETTINGS", fontWeight = FontWeight.Bold)
                         }
                     } else {
                         Text(

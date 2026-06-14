@@ -35,6 +35,7 @@ fun SavedTagsScreen(
     repository: TagRepository,
     emulator: TagEmulator,
     isEmulating: Boolean,
+    isNfcEnabled: Boolean,
     onEmulationStateChanged: (Boolean) -> Unit,
     refreshTrigger: Int = 0
 ) {
@@ -51,7 +52,7 @@ fun SavedTagsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var tagToDelete by remember { mutableStateOf<TagData?>(null) }
 
-    LaunchedEffect(refreshTrigger) {
+    LaunchedEffect(refreshTrigger, isNfcEnabled) {
         tags = repository.getAllTags()
         emulatingUid = emulator.getEmulatingTagUid()
     }
@@ -128,7 +129,8 @@ fun SavedTagsScreen(
 
                         Surface(
                             shape = RoundedCornerShape(50.dp),
-                            color = if (emulating) NeonGreen.copy(alpha = 0.15f) else NeonCyan.copy(alpha = 0.15f),
+                            color = if (emulating) NeonGreen.copy(alpha = 0.15f) else
+                                if (!isNfcEnabled) Color.Red.copy(alpha = 0.15f) else NeonCyan.copy(alpha = 0.15f),
                             modifier = Modifier.clip(RoundedCornerShape(50.dp))
                         ) {
                             Row(
@@ -139,18 +141,60 @@ fun SavedTagsScreen(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(if (emulating) NeonGreen else NeonCyan)
+                                        .background(
+                                            when {
+                                                emulating -> NeonGreen
+                                                !isNfcEnabled -> Color.Red
+                                                else -> NeonCyan
+                                            }
+                                        )
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = if (emulating) "EMULATING" else if (isLandscape) "READY" else "READY",
+                                    text = when {
+                                        emulating -> "EMULATING"
+                                        !isNfcEnabled -> "NFC OFF"
+                                        else -> "READY"
+                                    },
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = if (emulating) NeonGreen else NeonCyan,
+                                    color = when {
+                                        emulating -> NeonGreen
+                                        !isNfcEnabled -> Color.Red
+                                        else -> NeonCyan
+                                    },
                                     fontSize = if (isLandscape) (dimens.bodyFontSize - 3).sp else (dimens.bodyFontSize - 2).sp,
                                     fontWeight = FontWeight.Medium
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            // NFC Warning Banner
+            if (!isNfcEnabled) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimens.paddingMedium.dp, vertical = dimens.paddingSmall.dp),
+                    shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Red.copy(alpha = 0.15f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimens.paddingMedium.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "⚠️", fontSize = 16.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "NFC is disabled. Please enable NFC to use emulation and scanning.",
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontSize = dimens.bodyFontSize.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -210,7 +254,12 @@ fun SavedTagsScreen(
                         TagCard(
                             tag = tag,
                             isEmulating = tag.uid == emulatingUid,
+                            isNfcEnabled = isNfcEnabled,
                             onEmulateClick = { selectedTag ->
+                                if (!isNfcEnabled) {
+                                    Toast.makeText(context, "Cannot emulate: NFC is disabled", Toast.LENGTH_SHORT).show()
+                                    return@TagCard
+                                }
                                 if (selectedTag.uid == emulatingUid) {
                                     emulator.setEmulatingTag(null)
                                     emulatingUid = null

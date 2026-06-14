@@ -43,6 +43,7 @@ import com.example.nfctagemulator.ui.screen.CreateTagScreen
 import com.example.nfctagemulator.ui.screen.SavedTagsScreen
 import com.example.nfctagemulator.ui.screen.ScanScreen
 import com.example.nfctagemulator.ui.theme.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var emulator: TagEmulator
     private var scannedTag = mutableStateOf<TagData?>(null)
     private var isEmulating = mutableStateOf(false)
+    private var isNfcEnabled = mutableStateOf(false)
     private var refreshSavedTags = mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,12 +77,26 @@ class MainActivity : ComponentActivity() {
         reader = NfcReader(this)
         repository = TagRepository(this)
         emulator = TagEmulator(this)
+
+        updateNfcState()
         isEmulating.value = emulator.isEmulating()
 
         setContent {
             NfcTagEmulatorTheme {
                 AppNavigation()
             }
+        }
+    }
+
+    private fun updateNfcState() {
+        val nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        isNfcEnabled.value = nfcAdapter?.isEnabled == true
+
+        // If NFC is disabled and emulation is active, stop emulation
+        if (!isNfcEnabled.value && isEmulating.value) {
+            emulator.setEmulatingTag(null)
+            isEmulating.value = false
+            Toast.makeText(this, "NFC is disabled. Emulation stopped.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -104,6 +120,7 @@ class MainActivity : ComponentActivity() {
             OnboardingScreen(
                 onComplete = {
                     onboardingViewModel.markOnboardingCompleted()
+                    updateNfcState()
                     checkAndFixNfcSettings()
                 }
             )
@@ -130,7 +147,6 @@ class MainActivity : ComponentActivity() {
             val cardEmulation = CardEmulation.getInstance(nfcAdapter)
             val component = ComponentName(this, TagHostApduService::class.java)
 
-            // Check if this app is the default for "other" category
             if (cardEmulation?.isDefaultServiceForCategory(component, CardEmulation.CATEGORY_OTHER) != true) {
                 showDisableBuiltInTagDialog()
             }
@@ -149,7 +165,6 @@ class MainActivity : ComponentActivity() {
 
     private fun openNfcSettings() {
         try {
-            // Try to open Tap & pay settings directly
             val intent = Intent(Settings.ACTION_NFC_PAYMENT_SETTINGS)
             startActivity(intent)
             Toast.makeText(
@@ -159,7 +174,6 @@ class MainActivity : ComponentActivity() {
             ).show()
         } catch (e: Exception) {
             try {
-                // Fallback to NFC settings
                 val intent = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                         Intent(Settings.Panel.ACTION_NFC)
@@ -195,7 +209,7 @@ class MainActivity : ComponentActivity() {
     ) {
         val context = LocalContext.current
         val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
-        val isNfcEnabled = nfcAdapter?.isEnabled == true
+        val isNfcEnabledLocal = nfcAdapter?.isEnabled == true
 
         val isDefaultApp = remember {
             if (nfcAdapter != null) {
@@ -249,17 +263,17 @@ class MainActivity : ComponentActivity() {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isNfcEnabled) NeonGreen.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.05f)
+                        color = if (isNfcEnabledLocal) NeonGreen.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.05f)
                     ) {
                         Text(
-                            text = if (isNfcEnabled) "✓ NFC is ENABLED" else "✗ NFC is DISABLED",
+                            text = if (isNfcEnabledLocal) "✓ NFC is ENABLED" else "✗ NFC is DISABLED",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Center,
-                            color = if (isNfcEnabled) NeonGreen else Color.White.copy(alpha = 0.5f)
+                            color = if (isNfcEnabledLocal) NeonGreen else Color.White.copy(alpha = 0.5f)
                         )
                     }
 
@@ -333,6 +347,14 @@ class MainActivity : ComponentActivity() {
 
         var selectedTab by remember { mutableStateOf(0) }
 
+        // Update NFC state periodically
+        LaunchedEffect(Unit) {
+            while (true) {
+                updateNfcState()
+                delay(1000)
+            }
+        }
+
         LaunchedEffect(pagerState.currentPage) {
             selectedTab = pagerState.currentPage
             if (pagerState.currentPage == 0) {
@@ -375,9 +397,14 @@ class MainActivity : ComponentActivity() {
                             repository = repository,
                             emulator = emulator,
                             isEmulating = isEmulating.value,
+                            isNfcEnabled = isNfcEnabled.value,
                             onEmulationStateChanged = { newState ->
-                                isEmulating.value = newState
-                                updateNfcState()
+                                if (newState && !isNfcEnabled.value) {
+                                    Toast.makeText(context, "Cannot start emulation: NFC is disabled", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    isEmulating.value = newState
+                                    updateNfcState()
+                                }
                             },
                             refreshTrigger = refreshSavedTags.value
                         )
@@ -386,6 +413,7 @@ class MainActivity : ComponentActivity() {
                         ScanScreen(
                             repository = repository,
                             scannedTag = scannedTag.value,
+                            isNfcEnabled = isNfcEnabled.value,
                             onNavigateToCreate = {
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(2)
@@ -417,14 +445,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!isEmulating.value) {
+        updateNfcState()
+        if (!isEmulating.value && isNfcEnabled.value) {
             reader.enable(this)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        reader.disable(this)
+        if (!isEmulating.value) {
+            reader.disable(this)
+        }
     }
 
     override fun onDestroy() {
@@ -437,6 +468,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+
+        if (!isNfcEnabled.value) {
+            Toast.makeText(
+                this,
+                "NFC is disabled. Please enable NFC first.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
         if (isEmulating.value) {
             Toast.makeText(
@@ -463,14 +503,6 @@ class MainActivity : ComponentActivity() {
                 refreshSavedTags.value++
                 Toast.makeText(this, "✅ ${it.name}", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    private fun updateNfcState() {
-        if (isEmulating.value) {
-            reader.disable(this)
-        } else {
-            reader.enable(this)
         }
     }
 }

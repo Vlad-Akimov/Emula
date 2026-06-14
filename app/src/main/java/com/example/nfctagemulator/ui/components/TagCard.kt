@@ -28,6 +28,7 @@ import com.example.nfctagemulator.ui.theme.*
 fun TagCard(
     tag: TagData,
     isEmulating: Boolean,
+    isNfcEnabled: Boolean,
     onEmulateClick: (TagData) -> Unit,
     onRenameClick: (TagData) -> Unit,
     onDeleteClick: (TagData) -> Unit
@@ -157,12 +158,21 @@ fun TagCard(
                             .height((dimens.buttonHeight - 8).dp)
                             .widthIn(min = if (isLandscape) 60.dp else 70.dp),
                         shape = RoundedCornerShape(12.dp),
+                        enabled = isNfcEnabled || isEmulating,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (isEmulating)
                                 NeonGreen.copy(alpha = 0.15f)
+                            else if (!isNfcEnabled)
+                                Color.Red.copy(alpha = 0.15f)
                             else
                                 NeonCyan.copy(alpha = 0.15f),
-                            contentColor = if (isEmulating) NeonGreen else NeonCyan
+                            contentColor = when {
+                                isEmulating -> NeonGreen
+                                !isNfcEnabled -> Color.Red
+                                else -> NeonCyan
+                            },
+                            disabledContainerColor = Color.Red.copy(alpha = 0.1f),
+                            disabledContentColor = Color.Red.copy(alpha = 0.5f)
                         ),
                         contentPadding = PaddingValues(horizontal = 8.dp)
                     ) {
@@ -176,7 +186,11 @@ fun TagCard(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = if (isEmulating) "STOP" else if (isLandscape) "EMUL" else "EMULATE",
+                                text = when {
+                                    isEmulating -> "STOP"
+                                    !isNfcEnabled -> "NFC OFF"
+                                    else -> if (isLandscape) "EMUL" else "EMULATE"
+                                },
                                 fontSize = (dimens.bodyFontSize - 4).sp,
                                 maxLines = 1,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
