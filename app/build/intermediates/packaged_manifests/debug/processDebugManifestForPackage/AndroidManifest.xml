@@ -39,9 +39,11 @@
         <!-- Main Activity -->
         <activity
             android:name="com.example.nfctagemulator.ui.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.NfcTagEmulator" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
