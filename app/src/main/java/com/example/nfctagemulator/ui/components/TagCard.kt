@@ -9,6 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -151,12 +155,12 @@ fun TagCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Emulate/Stop button
+                    // Emulate/Stop button with fixed width
                     Button(
                         onClick = { onEmulateClick(tag) },
                         modifier = Modifier
                             .height((dimens.buttonHeight - 8).dp)
-                            .widthIn(min = if (isLandscape) 60.dp else 70.dp),
+                            .width(if (isLandscape) 84.dp else 96.dp), // Фиксированная ширина
                         shape = RoundedCornerShape(12.dp),
                         enabled = isNfcEnabled || isEmulating,
                         colors = ButtonDefaults.buttonColors(
@@ -180,9 +184,15 @@ fun TagCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                text = if (isEmulating) "⏹️" else "▶️",
-                                fontSize = (dimens.bodyFontSize - 2).sp
+                            Icon(
+                                imageVector = if (isEmulating) Icons.Default.Stop else Icons.Default.PlayArrow,
+                                contentDescription = if (isEmulating) "Stop" else "Play",
+                                modifier = Modifier.size((dimens.iconSize - 4).dp),
+                                tint = when {
+                                    isEmulating -> NeonGreen
+                                    !isNfcEnabled -> Color.Red
+                                    else -> NeonCyan
+                                }
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
@@ -210,7 +220,8 @@ fun TagCard(
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = "More options",
-                                modifier = Modifier.size(dimens.iconSize.dp)
+                                modifier = Modifier.size(dimens.iconSize.dp),
+                                tint = NeonCyan.copy(alpha = 0.7f)
                             )
                         }
 
@@ -222,61 +233,55 @@ fun TagCard(
                                 .clip(RoundedCornerShape(12.dp)),
                             containerColor = SurfaceGlow
                         ) {
-                            // Rename menu item
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showMenu = false
-                                        onRenameClick(tag)
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Edit,
+                                            contentDescription = "Rename",
+                                            tint = NeonCyan,
+                                            modifier = Modifier.size(dimens.iconSize.dp)
+                                        )
+                                        Text(
+                                            text = "Rename",
+                                            color = Color.White,
+                                            fontSize = dimens.bodyFontSize.sp
+                                        )
                                     }
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Rename",
-                                    tint = NeonCyan,
-                                    modifier = Modifier.size(dimens.iconSize.dp)
-                                )
-                                Text(
-                                    text = "Rename",
-                                    color = Color.White,
-                                    fontSize = dimens.bodyFontSize.sp
-                                )
-                            }
-
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 8.dp),
-                                color = NeonCyan.copy(alpha = 0.2f),
-                                thickness = 0.5.dp
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onRenameClick(tag)
+                                }
                             )
 
-                            // Delete menu item
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        showMenu = false
-                                        onDeleteClick(tag)
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Delete,
+                                            contentDescription = "Delete",
+                                            tint = Color.Red.copy(alpha = 0.8f),
+                                            modifier = Modifier.size(dimens.iconSize.dp)
+                                        )
+                                        Text(
+                                            text = "Delete",
+                                            color = Color.Red.copy(alpha = 0.8f),
+                                            fontSize = dimens.bodyFontSize.sp
+                                        )
                                     }
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.Red.copy(alpha = 0.8f),
-                                    modifier = Modifier.size(dimens.iconSize.dp)
-                                )
-                                Text(
-                                    text = "Delete",
-                                    color = Color.Red.copy(alpha = 0.8f),
-                                    fontSize = dimens.bodyFontSize.sp
-                                )
-                            }
+                                },
+                                onClick = {
+                                    showMenu = false
+                                    onDeleteClick(tag)
+                                }
+                            )
                         }
                     }
                 }

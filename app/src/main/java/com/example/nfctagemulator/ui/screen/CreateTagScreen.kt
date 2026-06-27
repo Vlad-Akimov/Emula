@@ -53,7 +53,6 @@ fun CreateTagScreen(
     var selectedType by remember { mutableStateOf(CreateTagType.URL) }
     var isCreating by remember { mutableStateOf(false) }
 
-    // Function to clear all form fields
     fun clearForm() {
         tagName = ""
         content = ""
@@ -62,7 +61,6 @@ fun CreateTagScreen(
         contactEmail = ""
     }
 
-    // Clear content when switching tag types
     LaunchedEffect(selectedType) {
         content = ""
     }
@@ -84,7 +82,6 @@ fun CreateTagScreen(
                 .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
             Text(
                 text = "CREATE TAG",
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -97,21 +94,20 @@ fun CreateTagScreen(
                     .padding(dimens.paddingMedium.dp)
             )
 
-            // Type selection
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(dimens.paddingSmall.dp)
             ) {
                 val types = listOf(
-                    CreateTagType.URL to "🔗",
-                    CreateTagType.TEXT to "📝",
-                    CreateTagType.PHONE to "📞",
-                    CreateTagType.EMAIL to "✉️",
-                    CreateTagType.CONTACT to "👤"
+                    CreateTagType.URL to Icons.Default.Link,
+                    CreateTagType.TEXT to Icons.Default.Description,
+                    CreateTagType.PHONE to Icons.Default.Phone,
+                    CreateTagType.EMAIL to Icons.Default.Email,
+                    CreateTagType.CONTACT to Icons.Default.Person
                 )
-                items(types) { (type, emoji) ->
+                items(types) { (type, icon) ->
                     AdaptiveTypeCard(
-                        emoji = emoji,
+                        icon = icon,
                         title = type.name,
                         isSelected = selectedType == type,
                         onClick = { selectedType = type }
@@ -121,7 +117,6 @@ fun CreateTagScreen(
 
             Spacer(modifier = Modifier.height(dimens.paddingMedium.dp))
 
-            // Input Form
             GlowCard(
                 modifier = Modifier.fillMaxWidth(),
                 gradientColors = listOf(
@@ -137,7 +132,6 @@ fun CreateTagScreen(
                         .fillMaxWidth()
                         .padding(dimens.paddingMedium.dp)
                 ) {
-                    // Section header
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(bottom = dimens.paddingMedium.dp)
@@ -162,7 +156,6 @@ fun CreateTagScreen(
                         )
                     }
 
-                    // Tag Name Input
                     OutlinedTextField(
                         value = tagName,
                         onValueChange = { tagName = it },
@@ -194,7 +187,6 @@ fun CreateTagScreen(
 
                     Spacer(modifier = Modifier.height(dimens.paddingMedium.dp))
 
-                    // Dynamic content
                     when (selectedType) {
                         CreateTagType.CONTACT -> AdaptiveContactForm(
                             contactName = contactName,
@@ -214,7 +206,6 @@ fun CreateTagScreen(
 
                     Spacer(modifier = Modifier.height(dimens.paddingLarge.dp))
 
-                    // Create Button
                     val isFormValid = if (selectedType == CreateTagType.CONTACT) {
                         contactName.isNotBlank() || contactPhone.isNotBlank() || contactEmail.isNotBlank()
                     } else {
@@ -311,7 +302,7 @@ fun CreateTagScreen(
 
 @Composable
 fun AdaptiveTypeCard(
-    emoji: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -321,6 +312,7 @@ fun AdaptiveTypeCard(
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     val cardWidth = if (isLandscape) 72.dp else 88.dp
     val cardHeight = if (isLandscape) 80.dp else 96.dp
+    val isContact = title == "CONTACT"
 
     Card(
         modifier = Modifier
@@ -342,7 +334,7 @@ fun AdaptiveTypeCard(
                     if (isSelected) {
                         Brush.verticalGradient(
                             colors = listOf(
-                                (if (title == "CONTACT") NeonGreen else NeonCyan).copy(alpha = 0.1f),
+                                (if (isContact) NeonGreen else NeonCyan).copy(alpha = 0.1f),
                                 Color.Transparent
                             )
                         )
@@ -356,9 +348,11 @@ fun AdaptiveTypeCard(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = emoji,
-                    fontSize = if (isLandscape) 20.sp else 28.sp
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = if (isSelected) (if (isContact) NeonGreen else NeonCyan) else Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.size(if (isLandscape) 24.dp else 32.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -368,7 +362,7 @@ fun AdaptiveTypeCard(
                         fontSize = if (isLandscape) 9.sp else 11.sp
                     ),
                     color = if (isSelected)
-                        (if (title == "CONTACT") NeonGreen else NeonCyan)
+                        (if (isContact) NeonGreen else NeonCyan)
                     else
                         Color.White.copy(alpha = 0.6f),
                     maxLines = 1
@@ -386,12 +380,13 @@ fun AdaptiveContentInput(
     isMultiline: Boolean = false
 ) {
     val dimens = getAdaptiveDimens()
-    val icon = when (type) {
-        CreateTagType.URL -> Icons.Default.Link
-        CreateTagType.TEXT -> Icons.Default.Description
-        CreateTagType.PHONE -> Icons.Default.Phone
-        CreateTagType.EMAIL -> Icons.Default.Email
-        else -> Icons.Default.Edit
+
+    val (icon, iconColor) = when (type) {
+        CreateTagType.URL -> Pair(Icons.Default.Link, NeonCyan)
+        CreateTagType.TEXT -> Pair(Icons.Default.Description, NeonPurple)
+        CreateTagType.PHONE -> Pair(Icons.Default.Phone, NeonPink)
+        CreateTagType.EMAIL -> Pair(Icons.Default.Email, NeonBlue)
+        else -> Pair(Icons.Default.Edit, NeonPurple)
     }
 
     val hint = when (type) {
@@ -419,17 +414,17 @@ fun AdaptiveContentInput(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = NeonPurple.copy(alpha = 0.7f),
+                tint = iconColor.copy(alpha = 0.7f),
                 modifier = Modifier.size(dimens.iconSize.dp)
             )
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = NeonPurple,
-            unfocusedBorderColor = NeonPurple.copy(alpha = 0.3f),
-            focusedLabelColor = NeonPurple,
-            cursorColor = NeonPurple,
+            focusedBorderColor = iconColor,
+            unfocusedBorderColor = iconColor.copy(alpha = 0.3f),
+            focusedLabelColor = iconColor,
+            cursorColor = iconColor,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White,
             focusedContainerColor = Color.Transparent,

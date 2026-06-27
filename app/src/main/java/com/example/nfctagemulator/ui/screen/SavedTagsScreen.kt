@@ -92,7 +92,12 @@ fun SavedTagsScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(dimens.paddingSmall.dp)
+                        .padding(
+                            start = dimens.paddingSmall.dp,
+                            top = dimens.paddingLarge.dp,
+                            end = dimens.paddingSmall.dp,
+                            bottom = dimens.paddingSmall.dp
+                        )
                         .shadow(
                             elevation = if (emulating) 12.dp else 4.dp,
                             shape = RoundedCornerShape(dimens.cardCornerRadius.dp),
